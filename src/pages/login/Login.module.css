@@ -1,0 +1,100 @@
+@import url("https://fonts.googleapis.com/css?family=Lato:400,700,900&display=swap");
+
+.loginContainer {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background: #f5f5f5;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.form {
+  width: 100%;
+  padding: 1.5rem;
+  padding-top: 0;
+}
+
+.logo {
+  margin-bottom: 0.9rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px 18px 0 0;
+  background-color: #f57c00;
+}
+
+.logo img {
+  border-radius: 18px;
+  height: "6rem";
+}
+
+.titleSubtitle {
+  text-align: left;
+  max-width: 80%;
+}
+
+.loginForm {
+  display: flex;
+  width: 27rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* Corrige o desalinhamento */
+  text-align: center; /* Garante alinhamento do texto */
+  flex-direction: column;
+  border-radius: 25px;
+  color: rgb(0, 0, 0);
+  background-color: #fff;
+  box-shadow: 10px 10px 17px 5px rgba(0, 0, 0, 0.27);
+  -webkit-box-shadow: 10px 10px 17px 5px rgba(0, 0, 0, 0.27);
+  -moz-box-shadow: 10px 10px 17px 5px rgba(0, 0, 0, 0.27);
+}
+
+.titleForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  color: #000000;
+
+  text-align: center;
+  font-family: "Lato", sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
+  font-size: 2.5rem !important;
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .loginContainer {
+    flex-direction: column;
+    padding: 0.9rem;
+  }
+
+  .loginForm {
+    align-items: center;
+    text-align: center;
+    width: 22rem;
+  }
+
+  .title {
+    color: #000000;
+    font-size: 1.5rem !important;
+    width: 100%;
+  }
+  .logo {
+    height: 5rem;
+  }
+
+  .titleForm {
+    align-items: center;
+    text-align: center;
+  }
+}

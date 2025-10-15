@@ -1,0 +1,13 @@
+.iframe {
+  width: 100%;
+  height: calc(100vh - 64px); /* ajuste para altura do topo do layout */
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.powerbiEmbed {
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}

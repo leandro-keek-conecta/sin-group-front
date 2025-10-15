@@ -1,0 +1,86 @@
+.card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 260px;              /* 🔒 altura fixa p/ padronizar */
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+/* Caixa que segura o embed com altura "fixa" para equalizar */
+.embedBox {
+  width: 100%;
+  height: 180px;              /* ↔ mesma “área” do empty state */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Empty state (SVG + animação) */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 180px;              /* ↔ igual ao .embedBox */
+  text-align: center;
+  opacity: 0.9;
+  color: #b0b0b0;
+}
+
+.emptyIcon {
+  width: 90px;
+  height: 90px;
+  animation: float 2.4s ease-in-out infinite;
+}
+
+.bar1 { animation: pulse 1.6s ease-in-out 0s infinite; }
+.bar2 { animation: pulse 1.6s ease-in-out 0.2s infinite; }
+.bar3 { animation: pulse 1.6s ease-in-out 0.4s infinite; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.avatars {
+  display: flex;
+  flex-direction: row;
+}
+
+.avatars :not(:first-child) {
+  margin-left: -10px;
+}

@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import styles from "./Login.module.css";
 import logoBayeux from "@/assets/bayeux-white.png";
-import logoDefault from "@/assets/logo-padrao.png";
+import logoDefault from "@/assets/sin-logo.png";
 import gugaPet from "@/assets/guga-pet.png";
 import cmjp from "@/assets/CMJP-PB.png";
 import padPb from "@/assets/padPb.png";
@@ -90,10 +90,10 @@ export default function Login() {
         if (user.role === "ADMIN") {
           navigate("/projetos");
         } else if (user.role === "USER") {
-          console.log("Aqui")
-          console.log("length" , user.projetos.length )
+          console.log("Aqui");
+          console.log("length", user.projetos.length);
           if (!user.projetos || user.projetos.length <= 1) {
-            console.log("Dentro do if de lengh")
+            console.log("Dentro do if de lengh");
             navigate("/projeto");
           } else {
             navigate("/projetos");
@@ -134,7 +134,6 @@ export default function Login() {
           <Box className={styles.titleForm}>
             <Box
               className={styles.logo}
-              style={{ backgroundColor: temaAtual.palette.primary.main }}
               sx={{ mb: 2, pt: 1, pb: 1, minHeight: "5.5rem" }}
             >
               <img
@@ -157,7 +156,7 @@ export default function Login() {
               onChange={handleChange}
               onFocus={(e) => e.target.setAttribute("autocomplete", "email")}
               autoComplete="off"
-              sx={{ backgroundColor: "white", borderRadius: "4px" }}
+              sx={{ backgroundColor: "#ececec", borderRadius: "4px" }}
               InputProps={{
                 style: { color: "#333" },
                 startAdornment: (
@@ -196,7 +195,7 @@ export default function Login() {
               size="medium"
               value={formData.password}
               onChange={handleChange}
-              sx={{ backgroundColor: "white", borderRadius: "4px" }}
+              sx={{ backgroundColor: "#ececec", borderRadius: "4px" }}
               InputProps={{
                 style: { color: "#333" },
                 startAdornment: (
@@ -271,18 +270,27 @@ export default function Login() {
             </Box>
 
             <Button
-              variant="contained"
+              className={styles.buttomBack}
               fullWidth
-              style={{ backgroundColor: temaAtual.palette.primary.main }}
-              sx={{ py: 1.2 }}
               type="submit"
+               variant="outlined" // ← ESSENCIAL
+              sx={{
+                py: 1.2,
+                borderColor: "#1d1c1cff", // cor da linha
+                color: "#000", // cor do texto/ícone
+                bgcolor: "transparent", // sem preenchimento
+                borderWidth: 1,
+                "&:hover": {
+                  borderColor: "#000",
+                  borderWidth: 1,
+                  bgcolor: "rgba(0,0,0,0.04)", // feedback sutil (opcional)
+                },
+              }}
             >
               {loading ? (
-                <CircularProgress size={24} sx={{ color: "white" }} />
+                <CircularProgress size={24} sx={{ color: "black" }} />
               ) : (
-                <p style={{ color: `${whiteColor}`, fontSize: "1rem" }}>
-                  Acessar
-                </p>
+                <p style={{ color: `black`, fontSize: "1rem" }}>Acessar</p>
               )}
             </Button>
           </form>

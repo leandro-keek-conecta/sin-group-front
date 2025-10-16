@@ -2,6 +2,7 @@ import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Logo from "../assets/logo-horizontal-n.png";
+import icone from "../assets/Keek-Icone.png";
 import {
   AppBar,
   Avatar,
@@ -49,6 +50,7 @@ export function Layout({
   tituloIcon,
 }: PropriedadesLayout) {
   const APPBAR_H = "3rem";
+  const contentMinHeight = `calc(100vh - ${APPBAR_H})`;
   const navigate = useNavigate();
   const [barraLateralAberta, setBarraLateralAberta] = useState(true);
   const [menuMobileAberto, setMenuMobileAberto] = useState(false);
@@ -109,23 +111,58 @@ export function Layout({
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "center", // mantém o LOGO no centro
             height: "3rem",
-            p: 0.5,
-            px: 2,
             borderBottom: "1px solid black",
             borderRight: "1px solid #00000014",
-            position: "sticky", // ← fixa no topo
-            top: 0, // ← topo
-            zIndex: 1, // ← acima do scroll
-            backgroundColor: "#fff", // ← evita “vazar” conteúdo por baixo
+            position: "sticky", // pai com posição ≠ static para o absolute funcionar
+            top: 0,
+            zIndex: 1,
+            bgcolor: "#fff",
           }}
         >
-          <img
-            src={Logo}
-            alt="sinGroup"
-            style={{ height: "2.5rem", width: "auto" }}
-          />
+          {barraLateralAberta ? (
+            <>
+              <img
+                src={Logo}
+                alt="sinGroup"
+                style={{ height: "2.5rem", width: "auto" }}
+              />
+
+              <IconButton
+                aria-label="recolher menu"
+                onClick={() => {
+                  setBarraLateralAberta((prev) => {
+                    const novoEstado = !prev;
+                    requestAnimationFrame(() => {
+                      setTimeout(() => {
+                        window.dispatchEvent(new Event("resize"));
+                      }, 50);
+                    });
+                    return novoEstado;
+                  });
+                }}
+                sx={{
+                  position: "absolute",
+                  right: "0.5rem", // distância da direita
+                  top: "50%",
+                  transform: "translateY(-50%)", // centraliza verticalmente
+                  color: "black",
+                  display: { xs: "none", md: "flex" },
+                  "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
+                }}
+              >
+                <ChevronLeft />
+              </IconButton>
+            </>
+          ) : (
+            <img
+              src={icone}
+              onClick={() => setBarraLateralAberta((prev) => !prev)}
+              alt="sinGroup"
+              style={{ height: "30px", width: "30px", cursor: "pointer" }}
+            />
+          )}
         </Box>
 
         <Sidebar estaAberta={barraLateralAberta} />
@@ -192,7 +229,9 @@ export function Layout({
         component="main"
         sx={{
           flexGrow: 1,
-          pt: "3rem",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
           ml: { xs: 0, md: barraLateralAberta ? "13.281vw" : "50px" },
           transition: "all 0.3s ease-in-out",
           overflowX: "hidden",
@@ -215,14 +254,6 @@ export function Layout({
           }}
         >
           <Toolbar sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={() => setMenuMobileAberto(true)}
-              sx={{ display: { xs: "block", md: "none" } }}
-            >
-              <Menu />
-            </IconButton>
             {titulo && (
               <Box
                 sx={{
@@ -324,8 +355,38 @@ export function Layout({
             width: "100%",
             maxWidth: "100%",
             transition: "all 0.3s ease-in-out",
+            mt: APPBAR_H,
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: contentMinHeight,
+            minWidth: 0,
           }}
         >
+          {" "}
+          <IconButton
+            color="inherit"
+            onClick={() => setBarraLateralAberta((prev) => !prev)}
+            sx={{
+              display: { xs: "none", md: "inline-flex" },
+              width: 32,
+              height: 32,
+              borderRadius: "10px",
+              zIndex: 5,
+              position: "absolute",
+              left: "4rem",
+              top: "4rem",
+              border: "1px solid #e0e0e0",
+              backgroundColor: "#ffffff",
+              color: "#333333",
+              mr: 8,
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+              },
+            }}
+          >
+            <ChevronLeft fontSize="small" />
+          </IconButton>
           {children}
         </Box>
       </Box>

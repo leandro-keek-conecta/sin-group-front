@@ -1,7 +1,8 @@
 import { PowerBIEmbed } from "powerbi-client-react";
 import { Embed, models, Report } from "powerbi-client";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "../../pages/home/home.module.css";
+import { useProject } from "@/context/projectContext";
 
 interface EmbeddedReportProps {
   reportId: string;
@@ -21,10 +22,18 @@ export default function EmbeddedReport({
   const reportRef = useRef<Report | null>(null);
   const pagesCallbackRef = useRef<typeof onPagesLoaded>();
   const readyCallbackRef = useRef<typeof onReady>();
+  const { name } = useProject();
+  const [backgroundActive, setBackgroundActive] = useState(true);
 
   useEffect(() => {
     pagesCallbackRef.current = onPagesLoaded;
   }, [onPagesLoaded]);
+
+  useEffect(() => {
+    setBackgroundActive(name === "Tarefas e Projetos");
+    console.log(backgroundActive)
+    console.log(name)
+  }, [name]);
 
   useEffect(() => {
     readyCallbackRef.current = onReady;
@@ -83,7 +92,7 @@ export default function EmbeddedReport({
               filters: { visible: false },
               pageNavigation: { visible: false },
             },
-            background: models.BackgroundType.Transparent,
+            background: models.BackgroundType.Default,
           },
         }}
         getEmbeddedComponent={(embeddedReport: Embed) => {

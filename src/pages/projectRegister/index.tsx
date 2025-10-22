@@ -14,6 +14,7 @@ import { columnsProject } from "./colunsOfData/colunsProjectData";
 import { ModalDelete } from "./modalDelete";
 import { fetchUsers } from "@/services/user/userService";
 import User from "@/@types/IUserType";
+import { usePowerBI } from "@/context/powerbiContext";
 
 const toNumericId = (value: unknown): number | null => {
   if (typeof value === "number") {
@@ -139,6 +140,12 @@ export default function ProjectRegister() {
     category: undefined,
     title: undefined,
   });
+  const { setPages, setReportInstance } = usePowerBI();
+
+  useEffect(() => {
+    setPages([]);
+    setReportInstance(null);
+  }, [setPages, setReportInstance]);
 
   const projectInputs = useMemo(
     () => getProjectInputs(userOptions),

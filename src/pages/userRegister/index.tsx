@@ -14,9 +14,9 @@ import {
 } from "@/services/user/userService";
 import { fetchProjects } from "@/services/projetos/projetoService";
 import User from "@/@types/IUserType";
-import { create } from "domain";
 import CustomAlert from "@/components/Alert";
 import { ModalUserDelete } from "./modalDelete";
+import { usePowerBI } from "@/context/powerbiContext";
 
 export type FormValues = {
   id?: number; // opcional — útil para update
@@ -54,6 +54,12 @@ export default function UserRegister() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const { setPages, setReportInstance } = usePowerBI();
+
+  useEffect(() => {
+    setPages([]);
+    setReportInstance(null);
+  }, [setPages, setReportInstance]);
 
   function handlerCancelEdit() {
     setIsEditing(false);

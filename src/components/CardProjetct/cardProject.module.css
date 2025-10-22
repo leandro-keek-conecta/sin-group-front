@@ -3,15 +3,15 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 260px;              /* 🔒 altura fixa p/ padronizar */
+  min-height: 260px;          /* keep base height without clipping content */
   border-radius: 10px;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-3px);
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  filter: brightness(1.02);
 }
 
 .header {
@@ -30,21 +30,21 @@
   overflow: hidden;
 }
 
-/* Caixa que segura o embed com altura "fixa" para equalizar */
+/* Container that keeps the embed size uniform */
 .embedBox {
   width: 100%;
-  height: 180px;              /* ↔ mesma “área” do empty state */
+  height: 180px;              /* same area used in the empty state */
   border-radius: 8px;
   overflow: hidden;
 }
 
-/* Empty state (SVG + animação) */
+/* Empty state (SVG + animation) */
 .emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 180px;              /* ↔ igual ao .embedBox */
+  height: 180px;              /* matches .embedBox */
   text-align: center;
   opacity: 0.9;
   color: #b0b0b0;

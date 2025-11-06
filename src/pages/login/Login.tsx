@@ -257,7 +257,7 @@ export default function Login() {
                 label="lembre de mim"
               />
               <Link
-                href="#"
+                href="forgot-password"
                 fontSize="0.7rem"
                 color="#FFFFF"
                 sx={{

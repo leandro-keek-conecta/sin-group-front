@@ -21,7 +21,7 @@ export async function createUser(userData: CreateUserParams): Promise<ApiRespons
   try {
     const { data } = await api.post('/user/create', userData);
     return {
-      message: data?.message ?? "Usu�rio criado com sucesso.",
+      message: data?.message ?? "Usuário criado com sucesso.",
       data: data?.data,
     };
   } catch (err: unknown) {
@@ -30,20 +30,20 @@ export async function createUser(userData: CreateUserParams): Promise<ApiRespons
       const message = (err.response?.data as any)?.message || "Erro inesperado no servidor.";
 
       if (status === 401) {
-        throw new Error("Usu�rio n�o autorizado. Verifique seu login.");
+        throw new Error("Usuário não autorizado. Verifique seu login.");
       }
 
       if (status === 403) {
-        throw new Error("Voc� n�o tem permiss�o para criar usu�rios.");
+        throw new Error("Você não tem permissão para criar usuários.");
       }
 
       if (status === 409) {
-        throw new Error("O email informado j� est� cadastrado.");
+        throw new Error("O email informado já está cadastrado.");
       }
 
       if (status === 400) {
         const firstIssue = (err.response?.data as any)?.issues?.[0]?.message;
-        throw new Error("Erro de valida��o: " + (firstIssue || message));
+        throw new Error("Erro de validação: " + (firstIssue || message));
       }
 
       // Outros erros n�o mapeados especificamente

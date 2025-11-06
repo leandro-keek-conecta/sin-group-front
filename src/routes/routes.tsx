@@ -11,7 +11,8 @@ import Metricas from '@/pages/metricas';
 import Estatisticas from '@/pages/estatistica';
 import ProjectRegister from '@/pages/projectRegister';
 import UserRegister from '@/pages/userRegister';
-
+import ChangePassword from '@/pages/changePassword';
+import { ForgotPassword } from '@/pages/forgotPassword';
 
 const RoutesConfig = () => (
   <AuthProvider>
@@ -21,6 +22,8 @@ const RoutesConfig = () => (
       <Route path="/guga-pet" element={<Login />} />
       <Route path="/conecta-cmjp" element={<Login />} />
       <Route path="/pad-pb" element={<Login />} />
+      <Route path="/change-password" element={<ChangePassword />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* User */}
       <Route path="/home" element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]}><Home /></ProtectedRoute>} />

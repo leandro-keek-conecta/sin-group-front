@@ -6,6 +6,7 @@ import { useProject } from "@/context/projectContext";
 import { usePowerBI } from "@/context/powerbiContext";
 import EmbeddedReportCard from "./Dashboard/PowerBIEmbed";
 import FolderIcon from '@mui/icons-material/Folder';
+import { getProjectContextValue } from "@/utils/project";
 
 type User = {
   id: number;
@@ -64,16 +65,22 @@ export default function CardProject({
   token,
 }: CardProjectProps) {
   const navigate = useNavigate();
-  const { setgroupId, setReportId, setToken, setName } = useProject();
+  const { setProjectData } = useProject();
   const { setPages, setReportInstance } = usePowerBI();
 
   const handleSelect = () => {
     setPages([]);
     setReportInstance(null);
-    setgroupId(groupId || "");
-    setReportId(reportId || "");
-    setToken(token || "");
-    setName(name || "");
+    setProjectData(
+      getProjectContextValue(
+        {
+          name,
+          reportId,
+          groupId,
+        },
+        token
+      )
+    );
     navigate("/projeto");
   };
 

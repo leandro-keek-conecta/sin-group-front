@@ -20,6 +20,10 @@ export async function login(
       ? { ...rawUser, ...(activeProject ? { projeto: activeProject } : {}) }
       : null;
 
+    if (userToPersist && response.data?.response) {
+      response.data.response.user = userToPersist;
+    }
+
     if (token) {
       localStorage.setItem("token", token);
     }

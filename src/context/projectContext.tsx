@@ -1,5 +1,12 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
 
+type ProjectContextValue = {
+  name?: string | null;
+  reportId?: string | null;
+  groupId?: string | null;
+  token?: string | null;
+};
+
 interface ProjectContextProps {
   name: string;
   setName: (value: string) => void;
@@ -9,6 +16,7 @@ interface ProjectContextProps {
   setgroupId: (value: string) => void;
   token: string;
   setToken: (value: string) => void;
+  setProjectData: (value: ProjectContextValue) => void;
   clearProject: () => void;
 }
 
@@ -45,6 +53,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const setgroupId = (value: string) => setgroupIdState(value);
   const setToken = (value: string) => setTokenState(value);
   const setName = (value: string) => setNameSate(value);
+  const setProjectData = (value: ProjectContextValue) => {
+    setReportIdState(typeof value.reportId === "string" ? value.reportId : "");
+    setgroupIdState(typeof value.groupId === "string" ? value.groupId : "");
+    setTokenState(typeof value.token === "string" ? value.token : "");
+    setNameSate(typeof value.name === "string" ? value.name : "");
+  };
   const clearProject = () => {
     localStorage.removeItem("projectContext");
     setReportIdState("");
@@ -55,7 +69,18 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   return (
     <ProjectContext.Provider
-      value={{ reportId, setReportId, groupId, setgroupId, token, setToken, name, setName, clearProject,  }}
+      value={{
+        reportId,
+        setReportId,
+        groupId,
+        setgroupId,
+        token,
+        setToken,
+        name,
+        setName,
+        setProjectData,
+        clearProject,
+      }}
     >
       {children}
     </ProjectContext.Provider>

@@ -31,13 +31,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CustomAlert from "@/components/Alert";
 import { useAuth } from "@/context/AuthContext";
 import { useDynamicTheme } from "@/context/ThemeContext.tsx";
+import { useProject } from "@/context/projectContext";
+import { usePowerBI } from "@/context/powerbiContext";
+import { getEmbedToken } from "@/services/powerBI/poweBIService";
+import { getActiveProject, getProjectContextValue } from "@/utils/project";
 
 export default function Login() {
   const [mostraSenha, setMostraSenha] = useState(false);
   const { setUser } = useAuth();
+  const { setProjectData, clearProject } = useProject();
   const [loading, setLoading] = useState(false);
   const { pathname } = useLocation();
   const { updateThemeColor } = useDynamicTheme();
+  const { setPages, setReportInstance } = usePowerBI();
 
   const logoMap: Record<string, string> = {
     "/bayeux": logoBayeux,
@@ -48,7 +54,6 @@ export default function Login() {
 
   const logoSrc = logoMap[pathname.toLowerCase()] || logoDefault;
   const temaAtual = themeMap[pathname.toLowerCase()] || tema;
-  const whiteColor = pathname === "/pad-pb" || "/" ? "white" : "black";
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
 
@@ -66,6 +71,35 @@ export default function Login() {
     category: undefined,
     title: undefined,
   });
+
+  async function hydrateSingleProjectAccess(user: any) {
+    const activeProject = getActiveProject(user);
+
+    if (!activeProject) {
+      clearProject();
+      return;
+    }
+
+    let embedToken = "";
+    const hasDashboard =
+      typeof activeProject.reportId === "string" &&
+      activeProject.reportId.trim().length > 0 &&
+      typeof activeProject.groupId === "string" &&
+      activeProject.groupId.trim().length > 0;
+
+    if (hasDashboard) {
+      try {
+        const response = await getEmbedToken();
+        embedToken = response?.data?.access_token ?? "";
+      } catch (error) {
+        console.error("Erro ao carregar token do Power BI no login:", error);
+      }
+    }
+
+    setPages([]);
+    setReportInstance(null);
+    setProjectData(getProjectContextValue(activeProject, embedToken));
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,14 +120,11 @@ export default function Login() {
           category: "success",
           title: "Login Feito Com Sucesso!",
         });
-        console.log("userRole", user.projetos.length);
         if (user.role === "ADMIN") {
           navigate("/projetos");
         } else if (user.role === "USER") {
-          console.log("Aqui");
-          console.log("length", user.projetos.length);
           if (!user.projetos || user.projetos.length <= 1) {
-            console.log("Dentro do if de lengh");
+            await hydrateSingleProjectAccess(user);
             navigate("/projeto");
           } else {
             navigate("/projetos");

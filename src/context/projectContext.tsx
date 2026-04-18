@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
 
 type ProjectContextValue = {
+  projectId?: number | null;
   name?: string | null;
   reportId?: string | null;
   groupId?: string | null;
@@ -8,6 +9,7 @@ type ProjectContextValue = {
 };
 
 interface ProjectContextProps {
+  projectId: number | null;
   name: string;
   setName: (value: string) => void;
   reportId: string;
@@ -23,6 +25,7 @@ interface ProjectContextProps {
 const ProjectContext = createContext<ProjectContextProps | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
+  const [projectId, setProjectIdState] = useState<number | null>(null);
   const [reportId, setReportIdState] = useState("");
   const [name, setNameSate] = useState("");
   const [groupId, setgroupIdState] = useState("");
@@ -32,7 +35,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem("projectContext");
     if (saved) {
-      const { reportId, groupId, token, name } = JSON.parse(saved);
+      const { projectId, reportId, groupId, token, name } = JSON.parse(saved);
+      setProjectIdState(typeof projectId === "number" ? projectId : null);
       setReportIdState(reportId || "");
       setgroupIdState(groupId || "");
       setTokenState(token || "");
@@ -44,9 +48,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(
       "projectContext",
-      JSON.stringify({ reportId, groupId, token, name })
+      JSON.stringify({ projectId, reportId, groupId, token, name })
     );
-  }, [reportId, groupId, token, name]);
+  }, [projectId, reportId, groupId, token, name]);
 
   // 🔹 Funções que atualizam estado + persistência
   const setReportId = (value: string) => setReportIdState(value);
@@ -54,6 +58,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const setToken = (value: string) => setTokenState(value);
   const setName = (value: string) => setNameSate(value);
   const setProjectData = (value: ProjectContextValue) => {
+    setProjectIdState(typeof value.projectId === "number" ? value.projectId : null);
     setReportIdState(typeof value.reportId === "string" ? value.reportId : "");
     setgroupIdState(typeof value.groupId === "string" ? value.groupId : "");
     setTokenState(typeof value.token === "string" ? value.token : "");
@@ -61,6 +66,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   };
   const clearProject = () => {
     localStorage.removeItem("projectContext");
+    setProjectIdState(null);
     setReportIdState("");
     setgroupIdState("");
     setTokenState("");
@@ -70,6 +76,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   return (
     <ProjectContext.Provider
       value={{
+        projectId,
         reportId,
         setReportId,
         groupId,

@@ -13,6 +13,11 @@ import ProjectRegister from '@/pages/projectRegister';
 import UserRegister from '@/pages/userRegister';
 import ChangePassword from '@/pages/changePassword';
 import { ForgotPassword } from '@/pages/forgotPassword';
+import IlhaLayout from '@/pages/ilha/layout/IlhaLayout';
+import IlhaOverview from '@/pages/ilha/overview';
+import IlhaAnalytics from '@/pages/ilha/analytics';
+import IlhaInsights from '@/pages/ilha/insights';
+import IlhaConversas from '@/pages/ilha/conversas';
 
 const RoutesConfig = () => (
   <AuthProvider>
@@ -35,7 +40,22 @@ const RoutesConfig = () => (
       <Route path="/projetos" element={<ProtectedRoute allowedRoles={["ADMIN", "USER"]}><Projects /></ProtectedRoute>} />
       <Route path="/projeto" element={<ProtectedRoute allowedRoles={["ADMIN", "USER"]}><ProjectAcess /></ProtectedRoute>} />
       <Route path="/cadastro-projeto" element={<ProtectedRoute allowedRoles={["ADMIN"]}><ProjectRegister /></ProtectedRoute>} />
-     
+
+      {/* Ilha (gated por projeto id=9) */}
+      <Route
+        path="/ilha"
+        element={
+          <ProtectedRoute allowedRoles={["USER", "ADMIN"]}>
+            <IlhaLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<IlhaOverview />} />
+        <Route path="visao-geral" element={<IlhaOverview />} />
+        <Route path="analises" element={<IlhaAnalytics />} />
+        <Route path="insights" element={<IlhaInsights />} />
+        <Route path="conversas" element={<IlhaConversas />} />
+      </Route>
 
       {/* Rota para NotFound */}
       <Route path="*" element={<NotFound />} />

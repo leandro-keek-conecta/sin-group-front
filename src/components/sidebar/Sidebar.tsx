@@ -3,8 +3,10 @@ import styles from "./sidebar.module.css";
 import { ItemMenu } from "../ItemMenu";
 import { usePowerBI } from "@/context/powerbiContext";
 import { mappedBySection, Section } from "@/utils/MappedBySection";
-import { BarChart, Public } from "@mui/icons-material";
+import { BarChart, Public, Insights, Chat, Dashboard, Analytics } from "@mui/icons-material";
 import { Skeleton, Box, CircularProgress } from "@mui/material";
+import { useProject } from "@/context/projectContext";
+import { ILHA_PROJECT_ID } from "@/pages/ilha/constants";
 
 interface PropriedadesSidebar {
   estaAberta: boolean;
@@ -21,6 +23,8 @@ export function Sidebar({
   noDashboard = false,
 }: PropriedadesSidebar) {
   const { pages, reportInstance } = usePowerBI();
+  const { projectId } = useProject();
+  const isIlha = projectId === ILHA_PROJECT_ID;
   const [sections, setSections] = useState<Section[]>([]);
   const [activePage, setActivePage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,13 +32,13 @@ export function Sidebar({
 
   // "boot loading" só enquanto de fato estiver tentando carregar um report
   const isBootLoading = useMemo(
-    () => !noDashboard && !showFallback && (!pages || pages.length === 0),
-    [noDashboard, showFallback, pages]
+    () => !noDashboard && !isIlha && !showFallback && (!pages || pages.length === 0),
+    [noDashboard, isIlha, showFallback, pages]
   );
 
   // se não houver reportInstance e também não vieram páginas após um tempo, ativa fallback
   useEffect(() => {
-    if (noDashboard) {
+    if (noDashboard || isIlha) {
       setShowFallback(true);
       return;
     }
@@ -49,7 +53,7 @@ export function Sidebar({
     }
     const t = setTimeout(() => setShowFallback(true), 1200); // 1.2s é agradável
     return () => clearTimeout(t);
-  }, [noDashboard, pages, reportInstance]);
+  }, [noDashboard, isIlha, pages, reportInstance]);
 
   const handleChangePage = async (pageName: string) => {
     if (!reportInstance) {
@@ -84,33 +88,69 @@ export function Sidebar({
     <nav className={styles.sidebarNav}>
 
       <ul className={styles.ulStyle}>
-        {isBootLoading ? (
-          <SkeletonMenu estaAberta={estaAberta} />
-        ) : hasSections ? (
-          sections.map((sec) => (
-            <Fragment key={sec.section}>
-              <ItemMenu rotulo={sec.section.toUpperCase()} isTitle estaAberta={estaAberta} />
-              {sec.items.map((item) => (
-                <ItemMenu
-                  key={item.name}
-                  icone={item.icon}
-                  rotulo={item.displayName}
-                  para="#"
-                  estaAberta={estaAberta}
-                  onClick={() => handleChangePage(item.name)}
-                  isActive={activePage === item.name}
-                />
-              ))}
-            </Fragment>
-          ))
-        ) : (
-          // Fallback quando não há dashboard/páginas
+        {!isIlha && (
+          isBootLoading ? (
+            <SkeletonMenu estaAberta={estaAberta} />
+          ) : hasSections ? (
+            sections.map((sec) => (
+              <Fragment key={sec.section}>
+                <ItemMenu rotulo={sec.section.toUpperCase()} isTitle estaAberta={estaAberta} />
+                {sec.items.map((item) => (
+                  <ItemMenu
+                    key={item.name}
+                    icone={item.icon}
+                    rotulo={item.displayName}
+                    para="#"
+                    estaAberta={estaAberta}
+                    onClick={() => handleChangePage(item.name)}
+                    isActive={activePage === item.name}
+                  />
+                ))}
+              </Fragment>
+            ))
+          ) : (
+            // Fallback quando não há dashboard/páginas
+            <>
+              <ItemMenu rotulo="PAINÉIS GERAIS" isTitle estaAberta={estaAberta} />
+              <ItemMenu
+                icone={<BarChart />}
+                rotulo="Visão Geral"
+                para="/projeto"
+                estaAberta={estaAberta}
+                onClick={isMobile ? aoFechar : undefined}
+              />
+            </>
+          )
+        )}
+
+        {isIlha && (
           <>
-            <ItemMenu rotulo="PAINÉIS GERAIS" isTitle estaAberta={estaAberta} />
+            <ItemMenu rotulo="ILHA" isTitle estaAberta={estaAberta} />
             <ItemMenu
-              icone={<BarChart />}
+              icone={<Dashboard />}
               rotulo="Visão Geral"
-              para="/projeto"
+              para="/ilha/visao-geral"
+              estaAberta={estaAberta}
+              onClick={isMobile ? aoFechar : undefined}
+            />
+            <ItemMenu
+              icone={<Analytics />}
+              rotulo="Análises"
+              para="/ilha/analises"
+              estaAberta={estaAberta}
+              onClick={isMobile ? aoFechar : undefined}
+            />
+            <ItemMenu
+              icone={<Insights />}
+              rotulo="Insights"
+              para="/ilha/insights"
+              estaAberta={estaAberta}
+              onClick={isMobile ? aoFechar : undefined}
+            />
+            <ItemMenu
+              icone={<Chat />}
+              rotulo="Conversas"
+              para="/ilha/conversas"
               estaAberta={estaAberta}
               onClick={isMobile ? aoFechar : undefined}
             />

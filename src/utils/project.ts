@@ -63,7 +63,16 @@ export function getProjectContextValue(
   project: ProjectLike | null | undefined,
   token = ""
 ) {
+  const rawId = project?.id;
+  const projectId =
+    typeof rawId === "number"
+      ? rawId
+      : typeof rawId === "string" && rawId.trim().length > 0 && !Number.isNaN(Number(rawId))
+        ? Number(rawId)
+        : null;
+
   return {
+    projectId,
     name: getProjectDisplayName(project),
     reportId:
       typeof project?.reportId === "string" ? project.reportId.trim() : "",

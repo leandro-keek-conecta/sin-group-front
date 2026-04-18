@@ -74,6 +74,7 @@ export default function CardProject({
     setProjectData(
       getProjectContextValue(
         {
+          id,
           name,
           reportId,
           groupId,

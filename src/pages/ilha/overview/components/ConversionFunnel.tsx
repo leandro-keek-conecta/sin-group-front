@@ -1,8 +1,7 @@
-import { Card, CardContent, Typography, Box, Stack, LinearProgress, Chip } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import { ILHA_PALETTE } from "../../utils/echartsTheme";
+import { Box, Stack, Typography } from "@mui/material";
 import type { IlhaResumo } from "../../types";
+import { IlhaCard } from "../../components/IlhaCard";
+import { ilhaTokens } from "../../theme/tokens";
 
 interface Props {
   data: IlhaResumo;
@@ -12,96 +11,109 @@ export function ConversionFunnel({ data }: Props) {
   const funnel = data.aggregates.funnel ?? [];
   const total = funnel[0]?.count ?? 0;
 
-  const stepHeaders = [
+  const fallback = [
     "Iniciou conversa",
     "Tirou dúvida",
     "Pediu informação",
     "Pediu disponibilidade",
     "Transferido",
-  ];
+  ].map((label) => ({ label, count: 0 }));
 
-  const rows = funnel.length > 0
-    ? funnel
-    : stepHeaders.map((label) => ({ label, count: 0 }));
+  const rows = funnel.length > 0 ? funnel : fallback;
 
   return (
-    <Card sx={{ height: "100%" }}>
-      <CardContent>
-        <Typography variant="overline" color="text.secondary">
-          01 — PIPELINE
-        </Typography>
-        <Typography variant="h6" fontWeight={700} mb={2}>
-          Funil de conversão
-        </Typography>
-
-        <Stack spacing={1.25}>
-          {rows.map((row, i) => {
-            const share = total > 0 ? row.count / total : 0;
-            const percent = Math.round(share * 100);
-            const complete = row.count > 0;
-            return (
-              <Box key={row.label}>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  spacing={1}
-                  mb={0.5}
-                >
-                  {complete ? (
-                    <CheckCircleIcon
-                      sx={{ fontSize: 18, color: ILHA_PALETTE.primary }}
-                    />
-                  ) : (
-                    <RadioButtonUncheckedIcon
-                      sx={{ fontSize: 18, color: "text.disabled" }}
-                    />
-                  )}
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
+    <IlhaCard title="Funil de conversão" subtitle="Jornada consolidada dos usuários no intervalo">
+      <Stack spacing={`${ilhaTokens.space.md}px`}>
+        {rows.map((row, i) => {
+          const share = total > 0 ? row.count / total : 0;
+          const percent = Math.round(share * 100);
+          const isFirst = i === 0;
+          return (
+            <Box key={row.label}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ mb: "6px" }}
+              >
+                <Stack direction="row" spacing={`${ilhaTokens.space.sm}px`} alignItems="center">
+                  <Box
                     sx={{
-                      flex: 1,
-                      color: complete ? "text.primary" : "text.secondary",
+                      width: 22,
+                      height: 22,
+                      borderRadius: `${ilhaTokens.radius.sm}px`,
+                      bgcolor: ilhaTokens.color.bgSubtle,
+                      color: ilhaTokens.color.textSecondary,
+                      fontSize: ilhaTokens.font.micro.size,
+                      fontWeight: ilhaTokens.font.micro.weight,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    {i + 1}. {row.label}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={`${row.count}`}
-                    sx={{
-                      height: 22,
-                      fontWeight: 700,
-                      bgcolor: complete ? "rgba(255,122,1,0.12)" : "action.hover",
-                      color: complete ? ILHA_PALETTE.primary : "text.secondary",
-                    }}
-                  />
+                    {i + 1}
+                  </Box>
                   <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ minWidth: 36, textAlign: "right" }}
+                    sx={{
+                      fontSize: ilhaTokens.font.body.size,
+                      fontWeight: ilhaTokens.font.bodyStrong.weight,
+                      color: ilhaTokens.color.textPrimary,
+                    }}
+                  >
+                    {row.label}
+                  </Typography>
+                </Stack>
+                <Stack direction="row" spacing={`${ilhaTokens.space.md}px`} alignItems="center">
+                  <Typography
+                    sx={{
+                      fontSize: ilhaTokens.font.caption.size,
+                      color: ilhaTokens.color.textTertiary,
+                      minWidth: 40,
+                      textAlign: "right",
+                    }}
                   >
                     {percent}%
                   </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: ilhaTokens.font.bodyStrong.size,
+                      fontWeight: ilhaTokens.font.bodyStrong.weight,
+                      color: ilhaTokens.color.textPrimary,
+                      minWidth: 40,
+                      textAlign: "right",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {row.count}
+                  </Typography>
                 </Stack>
-                <LinearProgress
-                  variant="determinate"
-                  value={share * 100}
+              </Stack>
+              <Box
+                sx={{
+                  position: "relative",
+                  height: 4,
+                  borderRadius: `${ilhaTokens.radius.pill}px`,
+                  bgcolor: ilhaTokens.color.bgSubtle,
+                  overflow: "hidden",
+                }}
+              >
+                <Box
                   sx={{
-                    height: 6,
-                    borderRadius: 3,
-                    bgcolor: "action.hover",
-                    "& .MuiLinearProgress-bar": {
-                      bgcolor: `rgba(255,122,1,${Math.max(0.35, 1 - i * 0.15)})`,
-                      borderRadius: 3,
-                    },
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    width: `${share * 100}%`,
+                    bgcolor: isFirst ? ilhaTokens.color.accent : ilhaTokens.color.accentHover,
+                    opacity: isFirst ? 1 : Math.max(0.45, 1 - i * 0.12),
+                    transition: `width ${ilhaTokens.transition.slow}`,
                   }}
                 />
               </Box>
-            );
-          })}
-        </Stack>
-      </CardContent>
-    </Card>
+            </Box>
+          );
+        })}
+      </Stack>
+    </IlhaCard>
   );
 }

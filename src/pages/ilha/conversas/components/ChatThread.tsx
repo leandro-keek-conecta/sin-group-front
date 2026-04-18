@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
-import { Box, Typography, Chip, Stack, Tooltip } from "@mui/material";
+import { Box, Typography, Stack, Tooltip } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
 import type { IlhaConversation, IlhaMessage } from "../../types";
 import { formatMarkdown } from "../../utils/formatMarkdown";
 import { titleize } from "../../utils/textHelpers";
 import { AssistantTransferBadge } from "./AssistantTransferBadge";
+import { ilhaTokens } from "../../theme/tokens";
 
 interface Props {
   conversation: IlhaConversation | null;
@@ -24,7 +25,11 @@ function formatDateLabel(d: Date): string {
   yesterday.setDate(today.getDate() - 1);
   if (sameDay(d, today)) return "Hoje";
   if (sameDay(d, yesterday)) return "Ontem";
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+  return d.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 const SENTIMENT_LABEL: Record<NonNullable<IlhaMessage["sentiment"]>, string> = {
@@ -32,36 +37,33 @@ const SENTIMENT_LABEL: Record<NonNullable<IlhaMessage["sentiment"]>, string> = {
   neutral: "Neutro",
   negative: "Negativo",
 };
-const SENTIMENT_BG: Record<NonNullable<IlhaMessage["sentiment"]>, string> = {
-  positive: "rgba(93,145,97,0.18)",
-  neutral: "rgba(0,0,0,0.05)",
-  negative: "rgba(217,83,79,0.18)",
-};
-const SENTIMENT_FG: Record<NonNullable<IlhaMessage["sentiment"]>, string> = {
-  positive: "#2F6E34",
-  neutral: "rgba(0,0,0,0.65)",
-  negative: "#A53F3B",
-};
+
+const CHAT_WALLPAPER = "#ECE5DD";
+const BUBBLE_SHADOW = "0 1px 0.5px rgba(0,0,0,0.13)";
+const OUTGOING_BG = "#DCF8C6";
+const INCOMING_BG = "#FFFFFF";
+const CHAT_TEXT = "#111B21";
 
 function bubbleStyles(from: IlhaMessage["from"]) {
   if (from === "user") {
     return {
       alignSelf: "flex-start",
-      bgcolor: "#FFFFFF",
-      borderRadius: "14px 14px 14px 2px",
-    };
-  }
-  if (from === "assistant") {
-    return {
-      alignSelf: "flex-end",
-      bgcolor: "rgba(255,122,1,0.12)",
-      borderRadius: "14px 14px 2px 14px",
+      bgcolor: INCOMING_BG,
+      color: CHAT_TEXT,
     };
   }
   return {
     alignSelf: "flex-end",
-    bgcolor: "#DCF8C6",
-    borderRadius: "14px 14px 2px 14px",
+    bgcolor: OUTGOING_BG,
+    color: CHAT_TEXT,
+  };
+}
+
+function metaChipColor(_from: IlhaMessage["from"]) {
+  return {
+    bg: "rgba(0,0,0,0.05)",
+    fg: "rgba(0,0,0,0.72)",
+    border: "rgba(0,0,0,0.08)",
   };
 }
 
@@ -76,7 +78,17 @@ export function ChatThread({ conversation }: Props) {
 
   if (!conversation) {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1, color: "text.secondary" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+          color: ilhaTokens.color.textTertiary,
+          fontSize: ilhaTokens.font.body.size,
+          bgcolor: CHAT_WALLPAPER,
+        }}
+      >
         Selecione uma conversa para visualizar as mensagens.
       </Box>
     );
@@ -101,7 +113,11 @@ export function ChatThread({ conversation }: Props) {
       conversation.transferredToAssistant &&
       msg.from === "assistant"
     ) {
-      items.push({ kind: "transfer", at: conversation.transferredAt, name: conversation.assistantName });
+      items.push({
+        kind: "transfer",
+        at: conversation.transferredAt,
+        name: conversation.assistantName,
+      });
       transferInserted = true;
     }
     items.push({ kind: "msg", msg });
@@ -113,26 +129,28 @@ export function ChatThread({ conversation }: Props) {
       sx={{
         flex: 1,
         overflowY: "auto",
-        px: 2,
-        py: 1.5,
+        px: `${ilhaTokens.space["2xl"]}px`,
+        py: `${ilhaTokens.space.lg}px`,
         display: "flex",
         flexDirection: "column",
-        gap: 0.75,
-        bgcolor: "#ECE5DD",
+        gap: `${ilhaTokens.space.sm}px`,
+        bgcolor: CHAT_WALLPAPER,
       }}
     >
       {items.map((it, i) => {
         if (it.kind === "date") {
           return (
-            <Box key={`d-${i}`} sx={{ alignSelf: "center", my: 1 }}>
+            <Box key={`d-${i}`} sx={{ alignSelf: "center", my: `${ilhaTokens.space.sm}px` }}>
               <Typography
-                variant="caption"
                 sx={{
-                  px: 1.5,
-                  py: 0.25,
-                  bgcolor: "rgba(0,0,0,0.08)",
-                  borderRadius: 2,
-                  fontWeight: 600,
+                  px: `${ilhaTokens.space.md}px`,
+                  py: "4px",
+                  bgcolor: "#FFFFFF",
+                  borderRadius: `${ilhaTokens.radius.pill}px`,
+                  boxShadow: BUBBLE_SHADOW,
+                  fontSize: ilhaTokens.font.caption.size,
+                  fontWeight: ilhaTokens.font.bodyStrong.weight,
+                  color: "rgba(0,0,0,0.55)",
                 }}
               >
                 {formatDateLabel(it.date)}
@@ -153,30 +171,45 @@ export function ChatThread({ conversation }: Props) {
         const m = it.msg;
         const styles = bubbleStyles(m.from);
         const hasBotMeta = m.from === "bot" && (m.theme || m.intent || m.sentiment);
+        const metaColors = metaChipColor(m.from);
         return (
           <Box
             key={m.id}
             sx={{
-              maxWidth: "72%",
-              px: 1.25,
-              py: 0.75,
-              boxShadow: "0 1px 0.5px rgba(0,0,0,0.13)",
+              maxWidth: "68%",
+              px: "9px",
+              py: "6px",
+              borderRadius: "7.5px",
+              boxShadow: BUBBLE_SHADOW,
+              fontFamily: ilhaTokens.font.family,
               position: "relative",
               ...styles,
               ...(m.isDuplicate
                 ? {
-                    borderLeft: "3px solid rgba(217,83,79,0.6)",
-                    opacity: 0.75,
+                    borderLeft: `3px solid ${ilhaTokens.color.danger}`,
+                    opacity: 0.85,
                   }
                 : null),
             }}
           >
             {m.isDuplicate && (
               <Tooltip title="Mensagem repetida pelo usuário">
-                <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.25 }}>
-                  <ReplayIcon sx={{ fontSize: 12, color: "#D9534F" }} />
-                  <Typography variant="caption" sx={{ fontSize: 10, color: "#D9534F", fontWeight: 600 }}>
-                    Reenvio
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  alignItems="center"
+                  sx={{ mb: "2px" }}
+                >
+                  <ReplayIcon sx={{ fontSize: 12, color: ilhaTokens.color.danger }} />
+                  <Typography
+                    sx={{
+                      fontSize: 10,
+                      color: ilhaTokens.color.danger,
+                      fontWeight: 600,
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    REENVIO
                   </Typography>
                 </Stack>
               </Tooltip>
@@ -186,68 +219,78 @@ export function ChatThread({ conversation }: Props) {
               sx={{
                 "& .md-list": { margin: 0, paddingLeft: 2.5 },
                 "& strong": { fontWeight: 700 },
-                fontSize: 14,
-                lineHeight: 1.4,
+                "& a": { color: "inherit", textDecoration: "underline" },
+                fontSize: ilhaTokens.font.body.size,
+                lineHeight: ilhaTokens.font.body.lineHeight,
               }}
             />
             {hasBotMeta && (
               <Stack
                 direction="row"
-                spacing={0.5}
+                spacing={`${ilhaTokens.space.xs}px`}
                 flexWrap="wrap"
                 useFlexGap
-                sx={{ mt: 0.5 }}
+                sx={{ mt: `${ilhaTokens.space.xs}px` }}
               >
                 {m.theme && (
-                  <Chip
-                    label={titleize(m.theme)}
-                    size="small"
-                    sx={{
-                      height: 18,
-                      fontSize: 10,
-                      bgcolor: "rgba(255,122,1,0.14)",
-                      color: "#A85300",
-                      fontWeight: 600,
-                    }}
-                  />
+                  <MetaChip label={titleize(m.theme)} colors={metaColors} />
                 )}
                 {m.intent && (
-                  <Chip
-                    label={titleize(m.intent)}
-                    size="small"
-                    sx={{
-                      height: 18,
-                      fontSize: 10,
-                      bgcolor: "rgba(0,0,0,0.06)",
-                      color: "rgba(0,0,0,0.7)",
-                      fontWeight: 600,
-                    }}
-                  />
+                  <MetaChip label={titleize(m.intent)} colors={metaColors} />
                 )}
                 {m.sentiment && (
-                  <Chip
+                  <MetaChip
                     label={SENTIMENT_LABEL[m.sentiment]}
-                    size="small"
-                    sx={{
-                      height: 18,
-                      fontSize: 10,
-                      bgcolor: SENTIMENT_BG[m.sentiment],
-                      color: SENTIMENT_FG[m.sentiment],
-                      fontWeight: 600,
-                    }}
+                    colors={metaColors}
                   />
                 )}
               </Stack>
             )}
             <Typography
-              variant="caption"
-              sx={{ display: "block", textAlign: "right", color: "rgba(0,0,0,0.45)", mt: 0.25, fontSize: 10 }}
+              sx={{
+                display: "block",
+                textAlign: "right",
+                color: "rgba(0,0,0,0.45)",
+                mt: "2px",
+                fontSize: 10,
+              }}
             >
-              {m.sentAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+              {m.sentAt.toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </Typography>
           </Box>
         );
       })}
+    </Box>
+  );
+}
+
+function MetaChip({
+  label,
+  colors,
+}: {
+  label: string;
+  colors: { bg: string; fg: string; border: string };
+}) {
+  return (
+    <Box
+      sx={{
+        height: 18,
+        px: "6px",
+        display: "inline-flex",
+        alignItems: "center",
+        borderRadius: `${ilhaTokens.radius.sm}px`,
+        bgcolor: colors.bg,
+        color: colors.fg,
+        border: `1px solid ${colors.border}`,
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: "0.02em",
+      }}
+    >
+      {label}
     </Box>
   );
 }

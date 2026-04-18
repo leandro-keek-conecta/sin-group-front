@@ -35,6 +35,7 @@ import { useProject } from "@/context/projectContext";
 import { usePowerBI } from "@/context/powerbiContext";
 import { getEmbedToken } from "@/services/powerBI/poweBIService";
 import { getActiveProject, getProjectContextValue } from "@/utils/project";
+import { ILHA_PROJECT_ID } from "@/pages/ilha/constants";
 
 export default function Login() {
   const [mostraSenha, setMostraSenha] = useState(false);
@@ -77,7 +78,7 @@ export default function Login() {
 
     if (!activeProject) {
       clearProject();
-      return;
+      return null;
     }
 
     let embedToken = "";
@@ -99,6 +100,7 @@ export default function Login() {
     setPages([]);
     setReportInstance(null);
     setProjectData(getProjectContextValue(activeProject, embedToken));
+    return activeProject;
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -124,8 +126,8 @@ export default function Login() {
           navigate("/projetos");
         } else if (user.role === "USER") {
           if (!user.projetos || user.projetos.length <= 1) {
-            await hydrateSingleProjectAccess(user);
-            navigate("/projeto");
+            const active = await hydrateSingleProjectAccess(user);
+            navigate(active?.id === ILHA_PROJECT_ID ? "/ilha/visao-geral" : "/projeto");
           } else {
             navigate("/projetos");
           }

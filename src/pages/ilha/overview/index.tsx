@@ -1,25 +1,61 @@
-import { Box, CircularProgress, Typography, Grid } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { useIlhaData } from "../hooks/useIlhaData";
-import { HeroCard } from "./components/HeroCard";
 import { LeadScoreRing } from "./components/LeadScoreRing";
 import { ConversionFunnel } from "./components/ConversionFunnel";
+import { IlhaPageHeader } from "../components/IlhaPageHeader";
+import { IlhaKpiStrip } from "../components/IlhaKpiStrip";
+import { ilhaTokens } from "../theme/tokens";
 
 export default function IlhaOverview() {
   const { data, isLoading, error } = useIlhaData();
 
   if (isLoading) {
-    return <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}><CircularProgress /></Box>;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
+        <CircularProgress sx={{ color: ilhaTokens.color.accent }} />
+      </Box>
+    );
   }
   if (error || !data) {
-    return <Typography color="error" sx={{ p: 4 }}>Erro: {error?.message}</Typography>;
+    return (
+      <Typography sx={{ p: 4, color: ilhaTokens.color.danger }}>
+        Erro: {error?.message}
+      </Typography>
+    );
   }
+
+  const totalUsers = data.users.length;
+  const subtitle = `${totalUsers} usuário${totalUsers === 1 ? "" : "s"} · ${data.aggregates.totalConversations} conversa${
+    data.aggregates.totalConversations === 1 ? "" : "s"
+  } · ${data.aggregates.totalMessages} mensagens`;
+
   return (
-    <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}><HeroCard data={data} /></Grid>
-        <Grid item xs={12} md={4}><LeadScoreRing data={data} /></Grid>
-        <Grid item xs={12}><ConversionFunnel data={data} /></Grid>
-      </Grid>
+    <Box
+      sx={{
+        px: { xs: `${ilhaTokens.space.lg}px`, md: `${ilhaTokens.space["2xl"]}px` },
+        pb: `${ilhaTokens.space["3xl"]}px`,
+      }}
+    >
+      <IlhaPageHeader title="Visão geral" subtitle={subtitle} />
+
+      <Box sx={{ mb: `${ilhaTokens.space["2xl"]}px` }}>
+        <IlhaKpiStrip items={data.aggregates.kpis ?? []} />
+      </Box>
+
+      <Box
+        sx={{
+          display: "grid",
+          gap: `${ilhaTokens.space.lg}px`,
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "2fr 1fr",
+          },
+          alignItems: "stretch",
+        }}
+      >
+        <ConversionFunnel data={data} />
+        <LeadScoreRing data={data} />
+      </Box>
     </Box>
   );
 }

@@ -1,6 +1,7 @@
-import { Card, CardContent, Typography, Box, Stack, LinearProgress, Divider } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import type { IlhaResumo } from "../../types";
-import { ILHA_PALETTE } from "../../utils/echartsTheme";
+import { IlhaCard } from "../../components/IlhaCard";
+import { ilhaTokens } from "../../theme/tokens";
 import { formatDuration } from "../../utils/intervals";
 
 function formatSecondsPt(s: number): string {
@@ -30,19 +31,13 @@ export function BotPerformance({ data }: { data: IlhaResumo }) {
       value: String(totalConversations),
       hint: `${totalMessages} mensagens`,
     },
-    {
-      label: "Duração média",
-      value: formatDuration(averageDuration),
-    },
+    { label: "Duração média", value: formatDuration(averageDuration) },
     {
       label: "Resposta média",
       value: formatSecondsPt(avgResponseSeconds),
-      hint: "por par mensagem-resposta",
+      hint: "por par pergunta/resposta",
     },
-    {
-      label: "Resolvido pelo bot",
-      value: pctStr(resolvedByBotPercent),
-    },
+    { label: "Resolvido pelo bot", value: pctStr(resolvedByBotPercent) },
     {
       label: "Transferências",
       value: pctStr(transferredPercent),
@@ -61,82 +56,126 @@ export function BotPerformance({ data }: { data: IlhaResumo }) {
   );
 
   return (
-    <Card sx={{ height: "100%" }}>
-      <CardContent>
-        <Typography variant="overline" color="text.secondary">
-          05 — OPERAÇÃO
-        </Typography>
-        <Typography variant="h6" fontWeight={700} mb={2}>
-          Performance do bot
-        </Typography>
-
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" },
-            gap: 1.5,
-          }}
-        >
-          {metrics.map((m) => (
+    <IlhaCard title="Performance do bot" subtitle="Operação consolidada no intervalo">
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" },
+          border: `1px solid ${ilhaTokens.color.border}`,
+          borderRadius: `${ilhaTokens.radius.md}px`,
+          overflow: "hidden",
+        }}
+      >
+        {metrics.map((m, i) => {
+          const col = i % 3;
+          const row = Math.floor(i / 3);
+          return (
             <Box
               key={m.label}
               sx={{
-                p: 1.25,
-                bgcolor: "action.hover",
-                borderRadius: 1,
+                p: `${ilhaTokens.space.md}px ${ilhaTokens.space.lg}px`,
+                borderLeft: col > 0 ? `1px solid ${ilhaTokens.color.border}` : "none",
+                borderTop: row > 0 ? `1px solid ${ilhaTokens.color.border}` : "none",
               }}
             >
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: 11 }}>
+              <Typography
+                sx={{
+                  fontSize: ilhaTokens.font.micro.size,
+                  fontWeight: ilhaTokens.font.micro.weight,
+                  letterSpacing: ilhaTokens.font.micro.letterSpacing,
+                  color: ilhaTokens.color.textTertiary,
+                  textTransform: "uppercase",
+                }}
+              >
                 {m.label}
               </Typography>
-              <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2 }}>
+              <Typography
+                sx={{
+                  fontSize: ilhaTokens.font.display.size,
+                  fontWeight: ilhaTokens.font.display.weight,
+                  lineHeight: 1.2,
+                  color: ilhaTokens.color.textPrimary,
+                  mt: "2px",
+                }}
+              >
                 {m.value}
               </Typography>
               {m.hint && (
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10 }}>
+                <Typography
+                  sx={{
+                    fontSize: ilhaTokens.font.caption.size,
+                    color: ilhaTokens.color.textTertiary,
+                    mt: "2px",
+                  }}
+                >
                   {m.hint}
                 </Typography>
               )}
             </Box>
-          ))}
-        </Box>
+          );
+        })}
+      </Box>
 
-        {performanceByTheme.length > 0 && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" fontWeight={700} mb={1}>
-              Tempo de resposta por tema
-            </Typography>
-            <Stack spacing={1}>
-              {performanceByTheme.slice(0, 6).map((row) => (
+      {performanceByTheme.length > 0 && (
+        <Box sx={{ mt: `${ilhaTokens.space.lg}px` }}>
+          <Typography
+            sx={{
+              fontSize: ilhaTokens.font.h2.size,
+              fontWeight: ilhaTokens.font.h2.weight,
+              color: ilhaTokens.color.textPrimary,
+              mb: `${ilhaTokens.space.sm}px`,
+            }}
+          >
+            Tempo de resposta por tema
+          </Typography>
+          <Stack spacing={`${ilhaTokens.space.sm}px`}>
+            {performanceByTheme.slice(0, 6).map((row) => {
+              const share = maxTheme > 0 ? row.avgSeconds / maxTheme : 0;
+              return (
                 <Box key={row.theme}>
-                  <Stack direction="row" justifyContent="space-between" mb={0.25}>
-                    <Typography variant="body2" fontWeight={600}>
+                  <Stack direction="row" justifyContent="space-between" sx={{ mb: "4px" }}>
+                    <Typography
+                      sx={{
+                        fontSize: ilhaTokens.font.body.size,
+                        fontWeight: ilhaTokens.font.bodyStrong.weight,
+                        color: ilhaTokens.color.textPrimary,
+                      }}
+                    >
                       {row.theme}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      sx={{
+                        fontSize: ilhaTokens.font.caption.size,
+                        color: ilhaTokens.color.textTertiary,
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
                       {formatSecondsPt(row.avgSeconds)} · {row.count} resp.
                     </Typography>
                   </Stack>
-                  <LinearProgress
-                    variant="determinate"
-                    value={maxTheme > 0 ? (row.avgSeconds / maxTheme) * 100 : 0}
+                  <Box
                     sx={{
-                      height: 5,
-                      borderRadius: 3,
-                      bgcolor: "action.hover",
-                      "& .MuiLinearProgress-bar": {
-                        bgcolor: ILHA_PALETTE.primary,
-                        borderRadius: 3,
-                      },
+                      height: 4,
+                      borderRadius: `${ilhaTokens.radius.pill}px`,
+                      bgcolor: ilhaTokens.color.bgSubtle,
+                      overflow: "hidden",
                     }}
-                  />
+                  >
+                    <Box
+                      sx={{
+                        width: `${share * 100}%`,
+                        height: "100%",
+                        bgcolor: ilhaTokens.color.accent,
+                        transition: `width ${ilhaTokens.transition.slow}`,
+                      }}
+                    />
+                  </Box>
                 </Box>
-              ))}
-            </Stack>
-          </>
-        )}
-      </CardContent>
-    </Card>
+              );
+            })}
+          </Stack>
+        </Box>
+      )}
+    </IlhaCard>
   );
 }

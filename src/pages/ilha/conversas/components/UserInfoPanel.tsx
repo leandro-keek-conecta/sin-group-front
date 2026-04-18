@@ -1,17 +1,12 @@
 import { useMemo, useState } from "react";
 import {
-  Box,
-  Typography,
-  Avatar,
-  Chip,
-  Divider,
-  Stack,
-  Button,
-  LinearProgress,
-  Snackbar,
   Alert,
+  Box,
   IconButton,
+  Snackbar,
+  Stack,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import CallIcon from "@mui/icons-material/Call";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -19,7 +14,6 @@ import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import NotesIcon from "@mui/icons-material/Notes";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import CircleIcon from "@mui/icons-material/Circle";
 import type { IlhaUser, IlhaConversation } from "../../types";
 import { AssistantTransferBadge } from "./AssistantTransferBadge";
 import {
@@ -28,17 +22,12 @@ import {
   formatClockTime,
 } from "../../utils/intervals";
 import { formatPercent, getInitials } from "../../utils/textHelpers";
+import { ilhaTokens, leadLabelColor } from "../../theme/tokens";
 
 interface Props {
   user: IlhaUser | null;
   conversation: IlhaConversation | null;
 }
-
-const LEAD_COLOR: Record<IlhaUser["leadScore"]["label"], string> = {
-  "Lead quente": "#FF7A01",
-  "Lead morno": "#E0A800",
-  "Lead frio": "#8A8A8A",
-};
 
 export function UserInfoPanel({ user, conversation }: Props) {
   const [snack, setSnack] = useState<string | null>(null);
@@ -57,14 +46,23 @@ export function UserInfoPanel({ user, conversation }: Props) {
 
   if (!user) {
     return (
-      <Box sx={{ p: 3, color: "text.secondary" }}>
+      <Box
+        sx={{
+          p: `${ilhaTokens.space.xl}px`,
+          color: ilhaTokens.color.textTertiary,
+          fontSize: ilhaTokens.font.body.size,
+          borderLeft: `1px solid ${ilhaTokens.color.border}`,
+          bgcolor: ilhaTokens.color.bgSurface,
+          height: "100%",
+        }}
+      >
         Nenhum usuário selecionado.
       </Box>
     );
   }
 
   const score = user.leadScore;
-  const scoreColor = LEAD_COLOR[score.label];
+  const leadTone = leadLabelColor[score.label];
 
   const handleStub = (label: string) => {
     setSnack(`${label} — ação em breve.`);
@@ -75,111 +73,189 @@ export function UserInfoPanel({ user, conversation }: Props) {
       sx={{
         height: "100%",
         overflowY: "auto",
-        p: 2.5,
-        borderLeft: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.paper",
+        borderLeft: `1px solid ${ilhaTokens.color.border}`,
+        bgcolor: ilhaTokens.color.bgSurface,
       }}
     >
-      {/* 1. Profile header */}
-      <Stack alignItems="center" spacing={1} mb={2}>
-        <Avatar
-          sx={{
-            width: 72,
-            height: 72,
-            bgcolor: "#FF7A01",
-            fontSize: 26,
-            fontWeight: 700,
-          }}
-        >
-          {getInitials(user.nome)}
-        </Avatar>
-        <Typography fontWeight={700} fontSize={16} align="center">
-          {user.nome}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {user.maskedPhone || "Telefone indisponível"}
-        </Typography>
-        <Stack direction="row" spacing={0.5} alignItems="center">
-          <CircleIcon sx={{ fontSize: 8, color: scoreColor }} />
-          <Typography variant="caption" color="text.secondary">
-            {user.latestStatus}
-          </Typography>
-        </Stack>
-      </Stack>
-
-      <Divider sx={{ my: 2 }} />
-
-      {/* 2. Lead score + reasons */}
-      <SectionTitle>Lead Score</SectionTitle>
       <Box
         sx={{
-          mt: 1,
-          p: 1.5,
-          borderRadius: 1,
-          bgcolor: "action.hover",
+          px: `${ilhaTokens.space.xl}px`,
+          pt: `${ilhaTokens.space.xl}px`,
+          pb: `${ilhaTokens.space.lg}px`,
+          borderBottom: `1px solid ${ilhaTokens.color.border}`,
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <Box sx={{ position: "relative", flex: 1 }}>
-            <Stack direction="row" justifyContent="space-between" mb={0.5}>
-              <Typography variant="caption" color="text.secondary">
+        <Stack direction="row" spacing={`${ilhaTokens.space.md}px`} alignItems="center">
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              bgcolor: ilhaTokens.color.bgSubtle,
+              color: ilhaTokens.color.textSecondary,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: ilhaTokens.font.family,
+              fontSize: ilhaTokens.font.h1.size,
+              fontWeight: ilhaTokens.font.h1.weight,
+              flexShrink: 0,
+            }}
+          >
+            {getInitials(user.nome)}
+          </Box>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              sx={{
+                fontSize: ilhaTokens.font.h1.size,
+                fontWeight: ilhaTokens.font.h1.weight,
+                color: ilhaTokens.color.textPrimary,
+                lineHeight: 1.25,
+              }}
+              noWrap
+            >
+              {user.nome}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: ilhaTokens.font.caption.size,
+                color: ilhaTokens.color.textTertiary,
+              }}
+            >
+              {user.maskedPhone || "Telefone indisponível"}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: ilhaTokens.font.caption.size,
+                color: ilhaTokens.color.textSecondary,
+                mt: "2px",
+              }}
+            >
+              {user.latestStatus}
+            </Typography>
+          </Box>
+        </Stack>
+
+        <ActionStrip onClick={handleStub} />
+      </Box>
+
+      <Section title="Lead score">
+        <Box
+          sx={{
+            mt: `${ilhaTokens.space.sm}px`,
+            p: `${ilhaTokens.space.md}px`,
+            border: `1px solid ${ilhaTokens.color.border}`,
+            borderRadius: `${ilhaTokens.radius.md}px`,
+          }}
+        >
+          <Stack direction="row" justifyContent="space-between" alignItems="baseline">
+            <Stack direction="row" spacing={`${ilhaTokens.space.sm}px`} alignItems="center">
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  bgcolor: leadTone.dot,
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: ilhaTokens.font.body.size,
+                  fontWeight: ilhaTokens.font.bodyStrong.weight,
+                  color: leadTone.fg,
+                }}
+              >
                 {score.label}
               </Typography>
-              <Typography variant="caption" fontWeight={700} sx={{ color: scoreColor }}>
-                {score.score}/100
-              </Typography>
             </Stack>
-            <LinearProgress
-              variant="determinate"
-              value={score.score}
+            <Typography
               sx={{
-                height: 8,
-                borderRadius: 4,
-                "& .MuiLinearProgress-bar": { bgcolor: scoreColor },
+                fontSize: ilhaTokens.font.h1.size,
+                fontWeight: ilhaTokens.font.h1.weight,
+                color: ilhaTokens.color.textPrimary,
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {score.score}
+              <Box
+                component="span"
+                sx={{
+                  fontSize: ilhaTokens.font.caption.size,
+                  fontWeight: ilhaTokens.font.body.weight,
+                  color: ilhaTokens.color.textTertiary,
+                  ml: "2px",
+                }}
+              >
+                /100
+              </Box>
+            </Typography>
+          </Stack>
+          <Box
+            sx={{
+              mt: `${ilhaTokens.space.sm}px`,
+              height: 6,
+              borderRadius: `${ilhaTokens.radius.pill}px`,
+              bgcolor: ilhaTokens.color.bgSubtle,
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                width: `${score.score}%`,
+                height: "100%",
+                bgcolor: leadTone.dot,
+                transition: `width ${ilhaTokens.transition.slow}`,
               }}
             />
           </Box>
-        </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
-          {score.caption}
-        </Typography>
-        {score.reasons.length > 0 && (
-          <Stack component="ul" spacing={0.5} sx={{ m: 0, pl: 2, mt: 1 }}>
-            {score.reasons.map((r, i) => (
-              <Typography
-                key={i}
-                component="li"
-                variant="caption"
-                color="text.secondary"
-                sx={{ lineHeight: 1.4 }}
-              >
-                {r}
-              </Typography>
-            ))}
-          </Stack>
-        )}
-      </Box>
+          <Typography
+            sx={{
+              fontSize: ilhaTokens.font.caption.size,
+              color: ilhaTokens.color.textSecondary,
+              mt: `${ilhaTokens.space.sm}px`,
+              lineHeight: 1.4,
+            }}
+          >
+            {score.caption}
+          </Typography>
+          {score.reasons.length > 0 && (
+            <Box component="ul" sx={{ m: 0, pl: `${ilhaTokens.space.lg}px`, mt: `${ilhaTokens.space.sm}px` }}>
+              {score.reasons.map((r, i) => (
+                <Typography
+                  key={i}
+                  component="li"
+                  sx={{
+                    fontSize: ilhaTokens.font.caption.size,
+                    color: ilhaTokens.color.textSecondary,
+                    lineHeight: 1.45,
+                  }}
+                >
+                  {r}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Section>
 
-      {/* 3. User stats */}
-      <SectionTitle sx={{ mt: 2 }}>Histórico do usuário</SectionTitle>
-      <StatGrid
-        rows={[
-          ["Interações totais", String(user.qtdInteracoes)],
-          ["Conversas", String(user.conversations.length)],
-          ["Eventos", String(user.totalEventos)],
-          ["Primeiro contato", formatDateTime(user.primeiroContato)],
-          ["Último contato", formatDateTime(user.ultimoContato)],
-          user.returnGapMs > 0
-            ? ["Retorno após", formatDuration(user.returnGapMs)]
-            : ["Retorno após", "—"],
-        ]}
-      />
+      <Section title="Histórico do usuário">
+        <StatGrid
+          rows={[
+            ["Interações", String(user.qtdInteracoes)],
+            ["Conversas", String(user.conversations.length)],
+            ["Eventos", String(user.totalEventos)],
+            ["Primeiro contato", formatDateTime(user.primeiroContato)],
+            ["Último contato", formatDateTime(user.ultimoContato)],
+            [
+              "Retorno após",
+              user.returnGapMs > 0 ? formatDuration(user.returnGapMs) : "—",
+            ],
+          ]}
+        />
+      </Section>
 
-      {/* 4. Current conversation stats */}
       {conversation && (
-        <>
-          <SectionTitle sx={{ mt: 2 }}>Conversa atual</SectionTitle>
+        <Section title="Conversa atual">
           <StatGrid
             rows={[
               ["Início", formatDateTime(conversation.startedAt)],
@@ -197,193 +273,158 @@ export function UserInfoPanel({ user, conversation }: Props) {
               ],
             ]}
           />
-
-          {/* Transfer */}
           {conversation.transferredToAssistant && (
-            <Box sx={{ mt: 1.5 }}>
+            <Box sx={{ mt: `${ilhaTokens.space.md}px` }}>
               <AssistantTransferBadge
                 assistantName={conversation.assistantName}
                 transferredAt={conversation.transferredAt}
               />
             </Box>
           )}
-        </>
+        </Section>
       )}
 
-      {/* 5. Dominant signals */}
-      {conversation && (conversation.dominantTheme || conversation.dominantIntent || conversation.dominantSentiment) && (
-        <>
-          <SectionTitle sx={{ mt: 2 }}>Sinais dominantes</SectionTitle>
-          <Stack spacing={0.75} mt={1}>
-            {conversation.dominantTheme && (
-              <SignalRow
-                label="Tema"
-                value={conversation.dominantTheme.label}
-                share={conversation.dominantTheme.share}
-              />
-            )}
-            {conversation.dominantIntent && (
-              <SignalRow
-                label="Intenção"
-                value={conversation.dominantIntent.label}
-                share={conversation.dominantIntent.share}
-              />
-            )}
-            {conversation.dominantSentiment && (
-              <SignalRow
-                label="Sentimento"
-                value={conversation.dominantSentiment.label}
-                share={conversation.dominantSentiment.share}
-              />
-            )}
-          </Stack>
-        </>
-      )}
+      {conversation &&
+        (conversation.dominantTheme ||
+          conversation.dominantIntent ||
+          conversation.dominantSentiment) && (
+          <Section title="Sinais dominantes">
+            <Stack spacing={`${ilhaTokens.space.sm}px`}>
+              {conversation.dominantTheme && (
+                <SignalRow
+                  label="Tema"
+                  value={conversation.dominantTheme.label}
+                  share={conversation.dominantTheme.share}
+                />
+              )}
+              {conversation.dominantIntent && (
+                <SignalRow
+                  label="Intenção"
+                  value={conversation.dominantIntent.label}
+                  share={conversation.dominantIntent.share}
+                />
+              )}
+              {conversation.dominantSentiment && (
+                <SignalRow
+                  label="Sentimento"
+                  value={conversation.dominantSentiment.label}
+                  share={conversation.dominantSentiment.share}
+                />
+              )}
+            </Stack>
+          </Section>
+        )}
 
-      {/* Top signals chips */}
-      {conversation && (conversation.topThemes.length > 0 || conversation.topIntents.length > 0) && (
-        <Box sx={{ mt: 1.5 }}>
-          {conversation.topThemes.length > 0 && (
-            <Box sx={{ mb: 1 }}>
-              <Typography variant="caption" color="text.secondary">
-                Temas
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
-                {conversation.topThemes.map((t) => (
-                  <Chip key={t} label={t} size="small" variant="outlined" />
-                ))}
+      {conversation &&
+        (conversation.topThemes.length > 0 || conversation.topIntents.length > 0) && (
+          <Section title="Tags">
+            {conversation.topThemes.length > 0 && (
+              <Box sx={{ mb: `${ilhaTokens.space.sm}px` }}>
+                <TagLabel>Temas</TagLabel>
+                <TagRow items={conversation.topThemes} />
               </Box>
-            </Box>
-          )}
-          {conversation.topIntents.length > 0 && (
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                Intenções
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
-                {conversation.topIntents.map((i) => (
-                  <Chip key={i} label={i} size="small" variant="outlined" />
-                ))}
+            )}
+            {conversation.topIntents.length > 0 && (
+              <Box>
+                <TagLabel>Intenções</TagLabel>
+                <TagRow items={conversation.topIntents} />
               </Box>
-            </Box>
-          )}
-        </Box>
-      )}
+            )}
+          </Section>
+        )}
 
-      {/* 6. Recent events */}
       {recentEvents.length > 0 && (
-        <>
-          <SectionTitle sx={{ mt: 2 }}>Eventos recentes</SectionTitle>
-          <Stack spacing={0.75} mt={1}>
+        <Section title="Eventos recentes">
+          <Stack spacing={`${ilhaTokens.space.sm}px`}>
             {recentEvents.map((e) => (
-              <Stack key={e.id} direction="row" spacing={1} alignItems="flex-start">
-                <CircleIcon sx={{ fontSize: 6, mt: 0.75, color: "#FF7A01" }} />
+              <Stack
+                key={e.id}
+                direction="row"
+                spacing={`${ilhaTokens.space.sm}px`}
+                alignItems="flex-start"
+              >
+                <Box
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    bgcolor: ilhaTokens.color.accent,
+                    mt: "6px",
+                    flexShrink: 0,
+                  }}
+                />
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="caption" fontWeight={600}>
+                  <Typography
+                    sx={{
+                      fontSize: ilhaTokens.font.caption.size,
+                      fontWeight: ilhaTokens.font.bodyStrong.weight,
+                      color: ilhaTokens.color.textPrimary,
+                    }}
+                  >
                     {e.type}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                  <Typography
+                    sx={{
+                      fontSize: ilhaTokens.font.caption.size,
+                      color: ilhaTokens.color.textTertiary,
+                    }}
+                  >
                     {formatClockTime(e.occurredAt)}
                   </Typography>
                 </Box>
               </Stack>
             ))}
           </Stack>
-        </>
+        </Section>
       )}
 
-      {/* 7. Other conversations */}
       {otherConversations.length > 0 && (
-        <>
-          <SectionTitle sx={{ mt: 2 }}>Outras conversas</SectionTitle>
-          <Stack spacing={0.75} mt={1}>
+        <Section title="Outras conversas">
+          <Stack spacing={`${ilhaTokens.space.sm}px`}>
             {otherConversations.slice(0, 4).map((c) => (
               <Box
                 key={c.id}
                 sx={{
-                  p: 1,
-                  borderRadius: 1,
-                  bgcolor: "action.hover",
+                  p: `${ilhaTokens.space.sm}px`,
+                  border: `1px solid ${ilhaTokens.color.border}`,
+                  borderRadius: `${ilhaTokens.radius.md}px`,
                 }}
               >
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Typography variant="caption" fontWeight={600}>
+                  <Typography
+                    sx={{
+                      fontSize: ilhaTokens.font.caption.size,
+                      fontWeight: ilhaTokens.font.bodyStrong.weight,
+                      color: ilhaTokens.color.textPrimary,
+                    }}
+                  >
                     {formatDateTime(c.startedAt)}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    sx={{
+                      fontSize: ilhaTokens.font.caption.size,
+                      color: ilhaTokens.color.textTertiary,
+                    }}
+                  >
                     {c.messages.length} msg
                   </Typography>
                 </Stack>
                 {c.dominantTheme && (
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    sx={{
+                      fontSize: ilhaTokens.font.caption.size,
+                      color: ilhaTokens.color.textSecondary,
+                      mt: "2px",
+                    }}
+                  >
                     Tema: {c.dominantTheme.label}
                   </Typography>
                 )}
               </Box>
             ))}
           </Stack>
-        </>
+        </Section>
       )}
-
-      {/* 8. Actions */}
-      <Divider sx={{ my: 2 }} />
-      <SectionTitle>Ações comerciais</SectionTitle>
-      <Stack spacing={1} mt={1}>
-        <Button
-          size="small"
-          variant="contained"
-          startIcon={<WhatsAppIcon />}
-          onClick={() => handleStub("Abrir conversa no WhatsApp")}
-          sx={{ bgcolor: "#FF7A01", "&:hover": { bgcolor: "#E66D00" }, justifyContent: "flex-start" }}
-        >
-          Abrir no WhatsApp
-        </Button>
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<CallIcon />}
-          onClick={() => handleStub("Registrar ligação")}
-          sx={{ justifyContent: "flex-start" }}
-        >
-          Registrar ligação
-        </Button>
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<AssignmentIndIcon />}
-          onClick={() => handleStub("Atribuir a um responsável")}
-          sx={{ justifyContent: "flex-start" }}
-        >
-          Atribuir responsável
-        </Button>
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<BookmarkAddIcon />}
-          onClick={() => handleStub("Marcar como oportunidade")}
-          sx={{ justifyContent: "flex-start" }}
-        >
-          Marcar oportunidade
-        </Button>
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<NotesIcon />}
-          onClick={() => handleStub("Adicionar nota")}
-          sx={{ justifyContent: "flex-start" }}
-        >
-          Adicionar nota
-        </Button>
-        <Tooltip title="Mais ações">
-          <IconButton
-            size="small"
-            onClick={() => handleStub("Mais ações")}
-            sx={{ alignSelf: "flex-start" }}
-          >
-            <MoreHorizIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Stack>
 
       <Snackbar
         open={Boolean(snack)}
@@ -391,7 +432,15 @@ export function UserInfoPanel({ user, conversation }: Props) {
         onClose={() => setSnack(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert severity="info" variant="filled" sx={{ bgcolor: "#FF7A01" }}>
+        <Alert
+          severity="info"
+          variant="filled"
+          sx={{
+            bgcolor: ilhaTokens.color.accent,
+            color: "#fff",
+            fontFamily: ilhaTokens.font.family,
+          }}
+        >
           {snack}
         </Alert>
       </Snackbar>
@@ -399,17 +448,36 @@ export function UserInfoPanel({ user, conversation }: Props) {
   );
 }
 
-function SectionTitle({
+function Section({
+  title,
   children,
-  sx,
 }: {
+  title: string;
   children: React.ReactNode;
-  sx?: React.ComponentProps<typeof Typography>["sx"];
 }) {
   return (
-    <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 0.8, ...sx }}>
+    <Box
+      sx={{
+        px: `${ilhaTokens.space.xl}px`,
+        py: `${ilhaTokens.space.lg}px`,
+        borderBottom: `1px solid ${ilhaTokens.color.border}`,
+      }}
+    >
+      <Typography
+        sx={{
+          fontSize: ilhaTokens.font.micro.size,
+          fontWeight: ilhaTokens.font.micro.weight,
+          lineHeight: ilhaTokens.font.micro.lineHeight,
+          letterSpacing: ilhaTokens.font.micro.letterSpacing,
+          color: ilhaTokens.color.textTertiary,
+          textTransform: "uppercase",
+          mb: `${ilhaTokens.space.sm}px`,
+        }}
+      >
+        {title}
+      </Typography>
       {children}
-    </Typography>
+    </Box>
   );
 }
 
@@ -419,27 +487,50 @@ function StatGrid({ rows }: { rows: Array<[string, string]> }) {
       sx={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
-        gap: 1,
-        mt: 1,
+        gap: 0,
+        border: `1px solid ${ilhaTokens.color.border}`,
+        borderRadius: `${ilhaTokens.radius.md}px`,
+        overflow: "hidden",
       }}
     >
-      {rows.map(([label, value]) => (
-        <Box
-          key={label}
-          sx={{
-            p: 1,
-            borderRadius: 1,
-            bgcolor: "action.hover",
-          }}
-        >
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-            {label}
-          </Typography>
-          <Typography variant="body2" fontWeight={600}>
-            {value}
-          </Typography>
-        </Box>
-      ))}
+      {rows.map(([label, value], i) => {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        return (
+          <Box
+            key={label}
+            sx={{
+              p: `${ilhaTokens.space.sm}px ${ilhaTokens.space.md}px`,
+              borderLeft:
+                col === 1 ? `1px solid ${ilhaTokens.color.border}` : "none",
+              borderTop: row > 0 ? `1px solid ${ilhaTokens.color.border}` : "none",
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                color: ilhaTokens.color.textTertiary,
+                display: "block",
+              }}
+            >
+              {label}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: ilhaTokens.font.body.size,
+                fontWeight: ilhaTokens.font.bodyStrong.weight,
+                color: ilhaTokens.color.textPrimary,
+                mt: "1px",
+              }}
+            >
+              {value}
+            </Typography>
+          </Box>
+        );
+      })}
     </Box>
   );
 }
@@ -453,27 +544,165 @@ function SignalRow({
   value: string;
   share: number;
 }) {
+  const percent = Math.round(share * 100);
   return (
-    <Box
+    <Box>
+      <Stack direction="row" justifyContent="space-between" alignItems="baseline">
+        <Typography
+          sx={{
+            fontSize: ilhaTokens.font.caption.size,
+            color: ilhaTokens.color.textTertiary,
+          }}
+        >
+          {label}
+        </Typography>
+        <Stack direction="row" spacing={`${ilhaTokens.space.sm}px`} alignItems="baseline">
+          <Typography
+            sx={{
+              fontSize: ilhaTokens.font.body.size,
+              fontWeight: ilhaTokens.font.bodyStrong.weight,
+              color: ilhaTokens.color.textPrimary,
+            }}
+          >
+            {value}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: ilhaTokens.font.caption.size,
+              color: ilhaTokens.color.textSecondary,
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {percent}%
+          </Typography>
+        </Stack>
+      </Stack>
+      <Box
+        sx={{
+          mt: "4px",
+          height: 3,
+          borderRadius: `${ilhaTokens.radius.pill}px`,
+          bgcolor: ilhaTokens.color.bgSubtle,
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            width: `${percent}%`,
+            height: "100%",
+            bgcolor: ilhaTokens.color.accent,
+          }}
+        />
+      </Box>
+    </Box>
+  );
+}
+
+function TagLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Typography
       sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        color: ilhaTokens.color.textTertiary,
+        mb: `${ilhaTokens.space.xs}px`,
+        display: "block",
       }}
     >
-      <Typography variant="body2" color="text.secondary">
-        {label}
-      </Typography>
-      <Stack direction="row" spacing={0.75} alignItems="center">
-        <Typography variant="body2" fontWeight={600}>
-          {value}
-        </Typography>
-        <Chip
-          label={`${Math.round(share * 100)}%`}
-          size="small"
-          sx={{ height: 20, fontSize: 11 }}
-        />
-      </Stack>
+      {children}
+    </Typography>
+  );
+}
+
+function TagRow({ items }: { items: string[] }) {
+  return (
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: `${ilhaTokens.space.xs}px` }}>
+      {items.map((t) => (
+        <Box
+          key={t}
+          sx={{
+            px: `${ilhaTokens.space.sm}px`,
+            height: 20,
+            display: "inline-flex",
+            alignItems: "center",
+            borderRadius: `${ilhaTokens.radius.sm}px`,
+            border: `1px solid ${ilhaTokens.color.border}`,
+            bgcolor: ilhaTokens.color.bgSurface,
+            fontSize: ilhaTokens.font.caption.size,
+            color: ilhaTokens.color.textSecondary,
+            fontFamily: ilhaTokens.font.family,
+          }}
+        >
+          {t}
+        </Box>
+      ))}
     </Box>
+  );
+}
+
+function ActionStrip({ onClick }: { onClick: (label: string) => void }) {
+  const actions = [
+    { icon: <WhatsAppIcon sx={{ fontSize: 16 }} />, label: "WhatsApp", stubLabel: "Abrir no WhatsApp", primary: true },
+    { icon: <CallIcon sx={{ fontSize: 16 }} />, label: "Ligar", stubLabel: "Registrar ligação" },
+    { icon: <AssignmentIndIcon sx={{ fontSize: 16 }} />, label: "Atribuir", stubLabel: "Atribuir responsável" },
+    { icon: <BookmarkAddIcon sx={{ fontSize: 16 }} />, label: "Marcar", stubLabel: "Marcar oportunidade" },
+    { icon: <NotesIcon sx={{ fontSize: 16 }} />, label: "Nota", stubLabel: "Adicionar nota" },
+  ];
+  return (
+    <Stack
+      direction="row"
+      spacing={`${ilhaTokens.space.xs}px`}
+      sx={{ mt: `${ilhaTokens.space.md}px`, flexWrap: "wrap", useFlexGap: true, gap: `${ilhaTokens.space.xs}px` }}
+      useFlexGap
+    >
+      {actions.map((a) => (
+        <Box
+          key={a.label}
+          role="button"
+          tabIndex={0}
+          onClick={() => onClick(a.stubLabel)}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+            height: 28,
+            px: `${ilhaTokens.space.sm}px`,
+            borderRadius: `${ilhaTokens.radius.md}px`,
+            border: `1px solid ${a.primary ? ilhaTokens.color.accent : ilhaTokens.color.border}`,
+            bgcolor: a.primary ? ilhaTokens.color.accent : ilhaTokens.color.bgSurface,
+            color: a.primary ? "#fff" : ilhaTokens.color.textSecondary,
+            fontSize: ilhaTokens.font.caption.size,
+            fontWeight: ilhaTokens.font.bodyStrong.weight,
+            fontFamily: ilhaTokens.font.family,
+            cursor: "pointer",
+            transition: `all ${ilhaTokens.transition.base}`,
+            "&:hover": {
+              bgcolor: a.primary ? ilhaTokens.color.accentHover : ilhaTokens.color.bgSubtle,
+              borderColor: a.primary ? ilhaTokens.color.accentHover : ilhaTokens.color.borderStrong,
+            },
+          }}
+        >
+          {a.icon}
+          {a.label}
+        </Box>
+      ))}
+      <Tooltip title="Mais ações">
+        <IconButton
+          size="small"
+          onClick={() => onClick("Mais ações")}
+          sx={{
+            width: 28,
+            height: 28,
+            border: `1px solid ${ilhaTokens.color.border}`,
+            borderRadius: `${ilhaTokens.radius.md}px`,
+            color: ilhaTokens.color.textSecondary,
+          }}
+        >
+          <MoreHorizIcon sx={{ fontSize: 16 }} />
+        </IconButton>
+      </Tooltip>
+    </Stack>
   );
 }

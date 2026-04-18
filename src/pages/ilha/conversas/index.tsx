@@ -7,21 +7,31 @@ import { UserInfoPanel } from "./components/UserInfoPanel";
 import { ConversationTabs } from "./components/ConversationTabs";
 import { AssistantTransferBadge } from "./components/AssistantTransferBadge";
 import type { IlhaUser } from "../types";
+import { ilhaTokens } from "../theme/tokens";
 
 export default function IlhaConversas() {
   const { data, isLoading, error } = useIlhaData();
 
   if (isLoading) {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "70vh" }}>
-        <CircularProgress />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "70vh",
+        }}
+      >
+        <CircularProgress sx={{ color: ilhaTokens.color.accent }} />
       </Box>
     );
   }
   if (error || !data) {
     return (
-      <Box sx={{ p: 4 }}>
-        <Typography color="error">Erro ao carregar conversas: {error?.message ?? "sem dados"}</Typography>
+      <Box sx={{ p: `${ilhaTokens.space.xl}px` }}>
+        <Typography sx={{ color: ilhaTokens.color.danger }}>
+          Erro ao carregar conversas: {error?.message ?? "sem dados"}
+        </Typography>
       </Box>
     );
   }
@@ -31,20 +41,30 @@ export default function IlhaConversas() {
 
 function ConversasShell({ users }: { users: IlhaUser[] }) {
   const {
-    search, setSearch,
+    search,
+    setSearch,
     filteredUsers,
-    selectedUser, selectedUserId, setSelectedUserId,
-    selectedConversation, selectedConversationId, setSelectedConversationId,
-    tabsCollapsed, setTabsCollapsed,
+    selectedUser,
+    selectedUserId,
+    setSelectedUserId,
+    selectedConversation,
+    selectedConversationId,
+    setSelectedConversationId,
+    tabsCollapsed,
+    setTabsCollapsed,
   } = useChatFilters(users);
 
   return (
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: "minmax(280px, 340px) minmax(0, 1fr) minmax(280px, 360px)",
-        height: "calc(100dvh - 3rem)",
+        gridTemplateColumns: {
+          xs: "1fr",
+          md: `${ilhaTokens.layout.conversationsListWidth}px minmax(0, 1fr) ${ilhaTokens.layout.userInfoPanelWidth}px`,
+        },
+        height: `calc(100dvh - 3rem - ${ilhaTokens.layout.tabBarHeight}px)`,
         minHeight: 0,
+        bgcolor: ilhaTokens.color.bgSurface,
       }}
     >
       <ConversationsList
@@ -58,10 +78,34 @@ function ConversasShell({ users }: { users: IlhaUser[] }) {
 
       <Box sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
         {selectedUser && (
-          <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box
+            sx={{
+              px: `${ilhaTokens.space["2xl"]}px`,
+              py: `${ilhaTokens.space.md}px`,
+              borderBottom: `1px solid ${ilhaTokens.color.border}`,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              bgcolor: ilhaTokens.color.bgSurface,
+            }}
+          >
             <Box>
-              <Typography fontWeight={700}>{selectedUser.nome}</Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                sx={{
+                  fontSize: ilhaTokens.font.h1.size,
+                  fontWeight: ilhaTokens.font.h1.weight,
+                  color: ilhaTokens.color.textPrimary,
+                  lineHeight: 1.3,
+                }}
+              >
+                {selectedUser.nome}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: ilhaTokens.font.caption.size,
+                  color: ilhaTokens.color.textTertiary,
+                }}
+              >
                 {selectedUser.maskedPhone || "Telefone indisponível"}
               </Typography>
             </Box>

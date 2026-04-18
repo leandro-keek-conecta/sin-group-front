@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styles from "./itemMenu.module.css";
 import { useTheme } from "@mui/material/styles";
 
@@ -93,9 +94,9 @@ export function ItemMenu({
   // 🔹 Links normais (mantém compatibilidade)
   return (
     <li>
-      <a href={para} className={styles.menuItem} onClick={onClick}>
+      <Link to={para!} className={styles.menuItem} onClick={onClick}>
         {content}
-      </a>
+      </Link>
     </li>
   );
 }

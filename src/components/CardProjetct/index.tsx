@@ -7,6 +7,7 @@ import { usePowerBI } from "@/context/powerbiContext";
 import EmbeddedReportCard from "./Dashboard/PowerBIEmbed";
 import FolderIcon from '@mui/icons-material/Folder';
 import { getProjectContextValue } from "@/utils/project";
+import { ILHA_PROJECT_ID } from "@/pages/ilha/constants";
 
 type User = {
   id: number;
@@ -26,6 +27,46 @@ type CardProjectProps = {
   reportId?: string;
   token: string;
 };
+
+function IlhaCover() {
+  return (
+    <Box
+      className={styles.embedBox}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "#FFFFFF",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "radial-gradient(circle at 20% 20%, rgba(255,122,1,0.05), transparent 55%), radial-gradient(circle at 85% 80%, rgba(255,122,1,0.04), transparent 50%)",
+        },
+      }}
+    >
+      <Typography
+        component="span"
+        sx={{
+          position: "relative",
+          fontFamily: '"Archivo Black", "Arial Black", "Helvetica Neue", sans-serif',
+          fontWeight: 900,
+          fontSize: "4.2rem",
+          letterSpacing: "-0.06em",
+          color: "#ff4f01",
+          lineHeight: 1,
+          textTransform: "uppercase",
+          userSelect: "none",
+        }}
+      >
+        ILHA
+      </Typography>
+    </Box>
+  );
+}
 
 function EmptyState() {
   return (
@@ -82,9 +123,10 @@ export default function CardProject({
         token
       )
     );
-    navigate("/projeto");
+    navigate(id === ILHA_PROJECT_ID ? "/ilha/visao-geral" : "/projeto");
   };
 
+  const isIlha = id === ILHA_PROJECT_ID;
   const hasDashboard = Boolean(reportId && groupId);
 
   return (
@@ -92,12 +134,14 @@ export default function CardProject({
       <Box className={styles.header}>
         <FolderIcon sx={{ width: "20px", height: "20px", color: "#bdbdbd"}} />
         <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 500, }}>
-          {name} 
+          {name}
         </Typography>
       </Box>
 
       <Box className={styles.content}>
-        {hasDashboard ? (
+        {isIlha ? (
+          <IlhaCover />
+        ) : hasDashboard ? (
           <div className={styles.embedBox}>
             <EmbeddedReportCard
               reportId={reportId as string}

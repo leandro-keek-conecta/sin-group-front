@@ -19,6 +19,7 @@ import IlhaAnalytics from '@/pages/ilha/analytics';
 import IlhaInsights from '@/pages/ilha/insights';
 import IlhaConversas from '@/pages/ilha/conversas';
 import IlhaEventos from '@/pages/ilha/eventos';
+import PrintEventsWeekPage from '@/pages/ilha/eventos/print/PrintEventsWeekPage';
 
 const RoutesConfig = () => (
   <AuthProvider>
@@ -58,6 +59,16 @@ const RoutesConfig = () => (
         <Route path="conversas" element={<IlhaConversas />} />
         <Route path="eventos" element={<IlhaEventos />} />
       </Route>
+
+      {/* Ilha — rota de impressão, fora do layout pra tela limpa */}
+      <Route
+        path="/ilha/eventos/imprimir"
+        element={
+          <ProtectedRoute allowedRoles={["USER", "ADMIN"]}>
+            <PrintEventsWeekPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Rota para NotFound */}
       <Route path="*" element={<NotFound />} />

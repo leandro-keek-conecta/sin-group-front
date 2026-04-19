@@ -86,3 +86,12 @@ export function groupByDay(events: CalendlyEvent[]): { key: string; label: strin
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, val]) => ({ key, ...val }));
 }
+
+export function rollingSevenDays(from: Date = new Date()): { start: Date; end: Date } {
+  const start = new Date(from);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}

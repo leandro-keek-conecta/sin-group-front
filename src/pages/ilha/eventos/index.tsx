@@ -6,7 +6,7 @@ import { useCalendlyEvents } from "./hooks/useCalendly";
 import { EventList } from "./components/EventList";
 import { EventDetailPanel } from "./components/EventDetailPanel";
 import { SchedulingLinkCreator } from "./components/SchedulingLinkCreator";
-import { ExportWeekButton } from "./components/ExportWeekButton";
+import { ExportRangeButton } from "./components/ExportRangeButton";
 
 type FilterTab = "upcoming" | "past" | "canceled";
 
@@ -63,7 +63,7 @@ export default function IlhaEventos() {
         subtitle={subtitle}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
-            <ExportWeekButton />
+            <ExportRangeButton />
             <SchedulingLinkCreator />
           </Stack>
         }

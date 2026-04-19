@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, IconButton, Stack, Typography } from "@mui/material";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PersonIcon from "@mui/icons-material/Person";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import CancelIcon from "@mui/icons-material/Cancel";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import type { CalendlyEvent, CalendlyInvitee } from "../../types";
 import { ilhaTokens } from "../../theme/tokens";
 import { useCalendlyEventDetail, useCancelEvent } from "../hooks/useCalendly";
@@ -19,9 +20,10 @@ import {
 interface Props {
   selectedUri: string | null;
   fallback: CalendlyEvent | null;
+  onBack?: () => void;
 }
 
-export function EventDetailPanel({ selectedUri, fallback }: Props) {
+export function EventDetailPanel({ selectedUri, fallback, onBack }: Props) {
   const { data, isLoading, error } = useCalendlyEventDetail(selectedUri);
 
   if (!selectedUri) {
@@ -30,8 +32,11 @@ export function EventDetailPanel({ selectedUri, fallback }: Props) {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
-        <CircularProgress size={24} sx={{ color: ilhaTokens.color.accent }} />
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {onBack && <BackBar onBack={onBack} />}
+        <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <CircularProgress size={24} sx={{ color: ilhaTokens.color.accent }} />
+        </Box>
       </Box>
     );
   }
@@ -41,23 +46,73 @@ export function EventDetailPanel({ selectedUri, fallback }: Props) {
 
   if (!event) {
     return (
-      <Box sx={{ p: `${ilhaTokens.space.xl}px` }}>
-        <Typography sx={{ color: ilhaTokens.color.danger, fontSize: ilhaTokens.font.body.size }}>
-          {error?.message ?? "Evento não encontrado."}
-        </Typography>
+      <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        {onBack && <BackBar onBack={onBack} />}
+        <Box sx={{ p: `${ilhaTokens.space.xl}px` }}>
+          <Typography sx={{ color: ilhaTokens.color.danger, fontSize: ilhaTokens.font.body.size }}>
+            {error?.message ?? "Evento não encontrado."}
+          </Typography>
+        </Box>
       </Box>
     );
   }
 
-  return <EventDetailContent event={event} invitees={invitees} />;
+  return <EventDetailContent event={event} invitees={invitees} onBack={onBack} />;
+}
+
+function BackBar({ onBack, title }: { onBack: () => void; title?: string }) {
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={1}
+      sx={{
+        px: `${ilhaTokens.space.md}px`,
+        py: `${ilhaTokens.space.sm}px`,
+        borderBottom: `1px solid ${ilhaTokens.color.border}`,
+        bgcolor: ilhaTokens.color.bgSurface,
+        position: "sticky",
+        top: 0,
+        zIndex: 1,
+      }}
+    >
+      <IconButton
+        onClick={onBack}
+        size="small"
+        aria-label="Voltar"
+        sx={{
+          color: ilhaTokens.color.textSecondary,
+          "&:hover": { color: ilhaTokens.color.accent, bgcolor: ilhaTokens.color.accentSoft },
+        }}
+      >
+        <ArrowBackIcon fontSize="small" />
+      </IconButton>
+      <Typography
+        sx={{
+          fontSize: ilhaTokens.font.bodyStrong.size,
+          fontWeight: ilhaTokens.font.bodyStrong.weight,
+          color: ilhaTokens.color.textPrimary,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
+        {title ?? "Voltar"}
+      </Typography>
+    </Stack>
+  );
 }
 
 function EventDetailContent({
   event,
   invitees,
+  onBack,
 }: {
   event: CalendlyEvent;
   invitees: CalendlyInvitee[];
+  onBack?: () => void;
 }) {
   const cancel = useCancelEvent();
   const [reason, setReason] = useState("");
@@ -73,14 +128,16 @@ function EventDetailContent({
   };
 
   return (
-    <Box
-      sx={{
-        height: "100%",
-        overflowY: "auto",
-        px: `${ilhaTokens.space["2xl"]}px`,
-        py: `${ilhaTokens.space.xl}px`,
-      }}
-    >
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
+      {onBack && <BackBar onBack={onBack} title={event.name} />}
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: "auto",
+          px: { xs: `${ilhaTokens.space.lg}px`, md: `${ilhaTokens.space["2xl"]}px` },
+          py: { xs: `${ilhaTokens.space.lg}px`, md: `${ilhaTokens.space.xl}px` },
+        }}
+      >
       <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
         <Typography
           sx={{
@@ -248,6 +305,7 @@ function EventDetailContent({
           )}
         </Box>
       )}
+      </Box>
     </Box>
   );
 }

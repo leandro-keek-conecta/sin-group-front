@@ -95,3 +95,18 @@ export function rollingSevenDays(from: Date = new Date()): { start: Date; end: D
   end.setHours(23, 59, 59, 999);
   return { start, end };
 }
+
+export function currentMonth(from: Date = new Date()): { start: Date; end: Date } {
+  const start = new Date(from.getFullYear(), from.getMonth(), 1, 0, 0, 0, 0);
+  const end = new Date(from.getFullYear(), from.getMonth() + 1, 0, 23, 59, 59, 999);
+  return { start, end };
+}
+
+export function nextThirtyDays(from: Date = new Date()): { start: Date; end: Date } {
+  const start = new Date(from);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 29);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}

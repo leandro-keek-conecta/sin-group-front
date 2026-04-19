@@ -160,10 +160,10 @@ export default function PrintEventsWeekPage() {
 
         <Typography sx={printTheme.summary}>
           {sortedEvents.length === 0
-            ? "Nenhum evento agendado nos próximos 7 dias."
+            ? "Nenhum evento agendado no período."
             : `${sortedEvents.length} ${
                 sortedEvents.length === 1 ? "agendamento" : "agendamentos"
-              } nos próximos 7 dias`}
+              } no período`}
         </Typography>
 
         {sortedEvents.length === 0 ? (

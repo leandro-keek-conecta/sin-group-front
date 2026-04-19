@@ -107,10 +107,16 @@ function extractName(events: FlatEvent[]): string {
   for (const e of events) {
     if (e.tipo !== "mensagem_processada") continue;
     const resposta = pickString(e.metadata?.resposta);
-    const match = resposta.match(/(?:Oi|Olá|Olá,|Oi,)[,!\s]+([A-ZÀ-Úa-zà-ú][a-zà-ú]+(?:\s+[A-ZÀ-Úa-zà-ú][a-zà-ú]+)*)/);
+    const match = resposta.match(/(?:Oi|Olá|Olá,|Oi,)[,!\s]+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/);
     if (match && match[1]) {
       const name = match[1].trim();
-      if (!/^(tudo|bem|boa|obrigad|como|posso|aqui)/i.test(name)) return name;
+      if (
+        !/^(tudo|bem|boa|obrigad|como|posso|aqui|seja|vind|sou|meu|muito|prazer|entao|então|vamos|ok)/i.test(
+          name,
+        )
+      ) {
+        return name;
+      }
     }
   }
   return "Sem nome";

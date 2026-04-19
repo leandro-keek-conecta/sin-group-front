@@ -131,24 +131,47 @@ function normalizeSlot(raw: any): CalendlySlot {
   };
 }
 
+function unwrapN8nEnvelope(payload: unknown): unknown {
+  return Array.isArray(payload) && payload.length === 1 ? payload[0] : payload;
+}
+
 function extractCollection(payload: unknown): any[] {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === "object") {
-    const obj = payload as Record<string, unknown>;
+  const unwrapped = unwrapN8nEnvelope(payload);
+  if (Array.isArray(unwrapped)) return unwrapped;
+  if (unwrapped && typeof unwrapped === "object") {
+    const obj = unwrapped as Record<string, unknown>;
     if (Array.isArray(obj.collection)) return obj.collection as any[];
     if (Array.isArray(obj.data)) return obj.data as any[];
   }
   return [];
 }
 
+const CALENDLY_RANGE_YEARS = 2;
+
+function defaultMinStart(): Date {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - CALENDLY_RANGE_YEARS);
+  return d;
+}
+
+function defaultMaxStart(): Date {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + CALENDLY_RANGE_YEARS);
+  return d;
+}
+
 export async function fetchCalendlyEvents(
   params: CalendlyEventsParams = {},
 ): Promise<CalendlyEvent[]> {
-  const body: Record<string, unknown> = { Type: "calendly.events" };
+  const minStart = params.minStartTime ?? defaultMinStart();
+  const maxStart = params.maxStartTime ?? defaultMaxStart();
+  const body: Record<string, unknown> = {
+    Type: "calendly.events",
+    min_start_time: minStart.toISOString(),
+    max_start_time: maxStart.toISOString(),
+    count: params.count ?? 50,
+  };
   if (params.status) body.status = params.status;
-  if (params.minStartTime) body.min_start_time = params.minStartTime.toISOString();
-  if (params.maxStartTime) body.max_start_time = params.maxStartTime.toISOString();
-  if (params.count) body.count = params.count;
   const raw = await call<unknown>(body);
   return extractCollection(raw).map(normalizeEvent);
 }
@@ -156,9 +179,11 @@ export async function fetchCalendlyEvents(
 export async function fetchCalendlyEventDetail(
   uri: string,
 ): Promise<{ event: CalendlyEvent; invitees: CalendlyInvitee[] }> {
-  const raw = await call<any>({ Type: "calendly.eventDetail", uri });
+  const raw = unwrapN8nEnvelope(await call<any>({ Type: "calendly.eventDetail", uri })) as any;
   const eventRaw = raw?.event ?? raw?.resource ?? raw;
-  const inviteesRaw = raw?.invitees ?? extractCollection(raw?.invitees_collection);
+  const inviteesRaw = Array.isArray(raw?.invitees)
+    ? raw.invitees
+    : extractCollection(raw?.invitees_collection);
   return {
     event: normalizeEvent(eventRaw),
     invitees: (inviteesRaw as any[]).map(normalizeInvitee),
@@ -185,10 +210,10 @@ export async function fetchCalendlySlots(
 export async function createCalendlySchedulingLink(params: {
   eventTypeUri: string;
 }): Promise<CalendlySchedulingLink> {
-  const raw = await call<any>({
+  const raw = unwrapN8nEnvelope(await call<any>({
     Type: "calendly.schedulingLink",
     eventType: params.eventTypeUri,
-  });
+  })) as any;
   const resource = raw?.resource ?? raw;
   return {
     bookingUrl: String(resource?.booking_url ?? ""),
@@ -200,10 +225,10 @@ export async function createCalendlySchedulingLink(params: {
 export async function cancelCalendlyEvent(
   params: CalendlyCancelParams,
 ): Promise<CalendlyEvent> {
-  const raw = await call<any>({
+  const raw = unwrapN8nEnvelope(await call<any>({
     Type: "calendly.cancel",
     uri: params.uri,
     reason: params.reason,
-  });
+  })) as any;
   return normalizeEvent(raw?.resource ?? raw);
 }

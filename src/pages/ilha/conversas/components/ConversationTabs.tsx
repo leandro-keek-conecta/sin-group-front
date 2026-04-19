@@ -46,7 +46,7 @@ export function ConversationTabs({
           display: "flex",
           alignItems: "center",
           gap: `${ilhaTokens.space.sm}px`,
-          px: `${ilhaTokens.space["2xl"]}px`,
+          px: { xs: `${ilhaTokens.space.md}px`, md: `${ilhaTokens.space["2xl"]}px` },
           py: `${ilhaTokens.space.sm}px`,
           cursor: "pointer",
           userSelect: "none",
@@ -79,7 +79,7 @@ export function ConversationTabs({
           sx={{
             display: "flex",
             gap: `${ilhaTokens.space.xs}px`,
-            px: `${ilhaTokens.space["2xl"]}px`,
+            px: { xs: `${ilhaTokens.space.md}px`, md: `${ilhaTokens.space["2xl"]}px` },
             pb: `${ilhaTokens.space.sm}px`,
             overflowX: "auto",
             "&::-webkit-scrollbar": { height: 4 },

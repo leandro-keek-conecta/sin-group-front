@@ -129,8 +129,8 @@ export function ChatThread({ conversation }: Props) {
       sx={{
         flex: 1,
         overflowY: "auto",
-        px: `${ilhaTokens.space["2xl"]}px`,
-        py: `${ilhaTokens.space.lg}px`,
+        px: { xs: `${ilhaTokens.space.md}px`, md: `${ilhaTokens.space["2xl"]}px` },
+        py: { xs: `${ilhaTokens.space.md}px`, md: `${ilhaTokens.space.lg}px` },
         display: "flex",
         flexDirection: "column",
         gap: `${ilhaTokens.space.sm}px`,
@@ -176,7 +176,7 @@ export function ChatThread({ conversation }: Props) {
           <Box
             key={m.id}
             sx={{
-              maxWidth: "68%",
+              maxWidth: { xs: "82%", md: "68%" },
               px: "9px",
               py: "6px",
               borderRadius: "7.5px",

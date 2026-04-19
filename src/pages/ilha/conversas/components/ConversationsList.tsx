@@ -10,6 +10,7 @@ interface Props {
   onSearchChange: (v: string) => void;
   selectedUserId: string | null;
   onSelect: (id: string) => void;
+  compact?: boolean;
 }
 
 function initials(name: string): string {
@@ -36,6 +37,7 @@ export function ConversationsList({
   onSearchChange,
   selectedUserId,
   onSelect,
+  compact = false,
 }: Props) {
   return (
     <Box
@@ -43,44 +45,46 @@ export function ConversationsList({
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        borderRight: `1px solid ${ilhaTokens.color.border}`,
+        borderRight: { md: `1px solid ${ilhaTokens.color.border}` },
         bgcolor: ilhaTokens.color.bgSurface,
       }}
     >
       <Box
         sx={{
           px: `${ilhaTokens.space.lg}px`,
-          pt: `${ilhaTokens.space.md}px`,
+          pt: compact ? `${ilhaTokens.space.sm}px` : `${ilhaTokens.space.md}px`,
           pb: `${ilhaTokens.space.sm}px`,
           borderBottom: `1px solid ${ilhaTokens.color.border}`,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            mb: `${ilhaTokens.space.sm}px`,
-          }}
-        >
-          <Typography
+        {!compact && (
+          <Box
             sx={{
-              fontSize: ilhaTokens.font.h2.size,
-              fontWeight: ilhaTokens.font.h1.weight,
-              color: ilhaTokens.color.textPrimary,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              mb: `${ilhaTokens.space.sm}px`,
             }}
           >
-            Conversas
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: ilhaTokens.font.caption.size,
-              color: ilhaTokens.color.textTertiary,
-            }}
-          >
-            {search ? `${users.length} de ${allUsersCount}` : `${allUsersCount}`}
-          </Typography>
-        </Box>
+            <Typography
+              sx={{
+                fontSize: ilhaTokens.font.h2.size,
+                fontWeight: ilhaTokens.font.h1.weight,
+                color: ilhaTokens.color.textPrimary,
+              }}
+            >
+              Conversas
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: ilhaTokens.font.caption.size,
+                color: ilhaTokens.color.textTertiary,
+              }}
+            >
+              {search ? `${users.length} de ${allUsersCount}` : `${allUsersCount}`}
+            </Typography>
+          </Box>
+        )}
         <Box
           sx={{
             display: "flex",
@@ -89,10 +93,12 @@ export function ConversationsList({
             px: `${ilhaTokens.space.md}px`,
             py: "6px",
             border: `1px solid ${ilhaTokens.color.border}`,
-            borderRadius: `${ilhaTokens.radius.md}px`,
+            borderRadius: `${ilhaTokens.radius.pill}px`,
+            bgcolor: ilhaTokens.color.bgSubtle,
             transition: `border-color ${ilhaTokens.transition.base}`,
             "&:focus-within": {
               borderColor: ilhaTokens.color.accent,
+              bgcolor: ilhaTokens.color.bgSurface,
             },
           }}
         >
@@ -100,7 +106,7 @@ export function ConversationsList({
           <InputBase
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Pesquisar por nome ou telefone"
+            placeholder={compact ? "Pesquisar" : "Pesquisar por nome ou telefone"}
             sx={{
               flex: 1,
               fontSize: ilhaTokens.font.body.size,
@@ -109,6 +115,17 @@ export function ConversationsList({
             }}
             inputProps={{ "aria-label": "pesquisar conversas" }}
           />
+          {compact && search && (
+            <Typography
+              sx={{
+                fontSize: ilhaTokens.font.caption.size,
+                color: ilhaTokens.color.textTertiary,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {users.length}/{allUsersCount}
+            </Typography>
+          )}
         </Box>
       </Box>
       <Box sx={{ flex: 1, overflowY: "auto" }}>

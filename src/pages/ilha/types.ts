@@ -128,3 +128,63 @@ export type IlhaResumo = {
 };
 
 export type IlhaResumoRaw = unknown;
+
+// --- Calendly -------------------------------------------------------------
+
+export type CalendlyEventStatus = "active" | "canceled";
+
+export type CalendlyInvitee = {
+  uri: string;
+  name: string;
+  email: string;
+  phone?: string;
+  status: CalendlyEventStatus;
+  questionsAndAnswers: { question: string; answer: string }[];
+  cancelUrl?: string;
+  rescheduleUrl?: string;
+};
+
+export type CalendlyLocation = {
+  type: string;
+  location?: string;
+  joinUrl?: string;
+};
+
+export type CalendlyEvent = {
+  uri: string;
+  uuid: string;
+  name: string;
+  status: CalendlyEventStatus;
+  startTime: Date;
+  endTime: Date;
+  eventTypeUri: string | null;
+  location: CalendlyLocation | null;
+  organizer: { name: string; email: string } | null;
+  inviteesCount: number;
+  invitees?: CalendlyInvitee[];
+  createdAt: Date | null;
+};
+
+export type CalendlyEventType = {
+  uri: string;
+  uuid: string;
+  name: string;
+  duration: number;
+  schedulingUrl: string;
+  color: string;
+  active: boolean;
+  slug: string | null;
+};
+
+export type CalendlySlot = {
+  startTime: Date;
+  status: "available" | "unavailable";
+  schedulingUrl: string;
+  inviteesRemaining: number;
+};
+
+export type CalendlySchedulingLink = {
+  bookingUrl: string;
+  owner: string;
+  ownerType: string;
+};

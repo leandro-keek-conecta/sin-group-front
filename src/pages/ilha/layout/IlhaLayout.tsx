@@ -11,6 +11,7 @@ const routeTitles: Record<string, string> = {
   "/ilha/": "Ilha — Visão geral",
   "/ilha/visao-geral": "Ilha — Visão geral",
   "/ilha/conversas": "Ilha — Conversas",
+  "/ilha/eventos": "Ilha — Eventos",
   "/ilha/analises": "Ilha — Análises",
   "/ilha/insights": "Ilha — Insights",
 };

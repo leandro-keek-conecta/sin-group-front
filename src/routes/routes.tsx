@@ -18,6 +18,7 @@ import IlhaOverview from '@/pages/ilha/overview';
 import IlhaAnalytics from '@/pages/ilha/analytics';
 import IlhaInsights from '@/pages/ilha/insights';
 import IlhaConversas from '@/pages/ilha/conversas';
+import IlhaEventos from '@/pages/ilha/eventos';
 
 const RoutesConfig = () => (
   <AuthProvider>
@@ -55,6 +56,7 @@ const RoutesConfig = () => (
         <Route path="analises" element={<IlhaAnalytics />} />
         <Route path="insights" element={<IlhaInsights />} />
         <Route path="conversas" element={<IlhaConversas />} />
+        <Route path="eventos" element={<IlhaEventos />} />
       </Route>
 
       {/* Rota para NotFound */}

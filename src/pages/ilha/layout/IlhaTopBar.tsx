@@ -5,6 +5,7 @@ import { ilhaTokens } from "../theme/tokens";
 const tabs = [
   { to: "/ilha/visao-geral", label: "Visão geral" },
   { to: "/ilha/conversas", label: "Conversas" },
+  { to: "/ilha/eventos", label: "Eventos" },
   { to: "/ilha/analises", label: "Análises" },
   { to: "/ilha/insights", label: "Insights" },
 ];
@@ -22,6 +23,8 @@ export function IlhaTopBar() {
         bgcolor: ilhaTokens.color.bgSurface,
         borderBottom: `1px solid ${ilhaTokens.color.border}`,
         px: { xs: `${ilhaTokens.space.lg}px`, md: `${ilhaTokens.space["2xl"]}px` },
+        display: { xs: "block", md: "none" },
+        overflowX: "auto",
       }}
     >
       <Stack

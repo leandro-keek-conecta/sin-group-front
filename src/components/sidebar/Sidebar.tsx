@@ -3,7 +3,7 @@ import styles from "./sidebar.module.css";
 import { ItemMenu } from "../ItemMenu";
 import { usePowerBI } from "@/context/powerbiContext";
 import { mappedBySection, Section } from "@/utils/MappedBySection";
-import { BarChart, Public, Insights, Chat, Dashboard, Analytics } from "@mui/icons-material";
+import { BarChart, Public, Insights, Chat, Dashboard, Analytics, Event } from "@mui/icons-material";
 import { Skeleton, Box, CircularProgress } from "@mui/material";
 import { useProject } from "@/context/projectContext";
 import { ILHA_PROJECT_ID } from "@/pages/ilha/constants";
@@ -151,6 +151,13 @@ export function Sidebar({
               icone={<Chat />}
               rotulo="Conversas"
               para="/ilha/conversas"
+              estaAberta={estaAberta}
+              onClick={isMobile ? aoFechar : undefined}
+            />
+            <ItemMenu
+              icone={<Event />}
+              rotulo="Eventos"
+              para="/ilha/eventos"
               estaAberta={estaAberta}
               onClick={isMobile ? aoFechar : undefined}
             />

@@ -3,7 +3,12 @@ import type { IlhaUser, IlhaConversation } from "../../types";
 
 const TABS_STORAGE_KEY = "ilha-tabs-collapsed";
 
-export function useChatFilters(users: IlhaUser[]) {
+interface Options {
+  autoSelectFirst?: boolean;
+}
+
+export function useChatFilters(users: IlhaUser[], options: Options = {}) {
+  const { autoSelectFirst = true } = options;
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -35,10 +40,11 @@ export function useChatFilters(users: IlhaUser[]) {
   }, [users, search]);
 
   useEffect(() => {
+    if (!autoSelectFirst) return;
     if (!selectedUserId && filteredUsers.length > 0) {
       setSelectedUserId(filteredUsers[0].id);
     }
-  }, [filteredUsers, selectedUserId]);
+  }, [autoSelectFirst, filteredUsers, selectedUserId]);
 
   const selectedUser = useMemo<IlhaUser | null>(
     () => users.find((u) => u.id === selectedUserId) ?? null,

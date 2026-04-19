@@ -1,4 +1,5 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, IconButton, Typography, useMediaQuery } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useIlhaData } from "../hooks/useIlhaData";
 import { useChatFilters } from "./hooks/useChatFilters";
 import { ConversationsList } from "./components/ConversationsList";
@@ -40,6 +41,7 @@ export default function IlhaConversas() {
 }
 
 function ConversasShell({ users }: { users: IlhaUser[] }) {
+  const isDesktop = useMediaQuery("(min-width: 900px)");
   const {
     search,
     setSearch,
@@ -52,73 +54,75 @@ function ConversasShell({ users }: { users: IlhaUser[] }) {
     setSelectedConversationId,
     tabsCollapsed,
     setTabsCollapsed,
-  } = useChatFilters(users);
+  } = useChatFilters(users, { autoSelectFirst: isDesktop });
+
+  const mobileShowingThread = !isDesktop && Boolean(selectedUserId);
+
+  if (isDesktop) {
+    return (
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: `${ilhaTokens.layout.conversationsListWidth}px minmax(0, 1fr) ${ilhaTokens.layout.userInfoPanelWidth}px`,
+          height: "calc(100dvh - 3rem)",
+          minHeight: 0,
+          bgcolor: ilhaTokens.color.bgSurface,
+        }}
+      >
+        <ConversationsList
+          users={filteredUsers}
+          allUsersCount={users.length}
+          search={search}
+          onSearchChange={setSearch}
+          selectedUserId={selectedUserId}
+          onSelect={setSelectedUserId}
+        />
+
+        <Box sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+          {selectedUser && (
+            <ConversationHeader
+              user={selectedUser}
+              transferred={Boolean(selectedConversation?.transferredToAssistant)}
+              assistantName={selectedConversation?.assistantName ?? null}
+              transferredAt={selectedConversation?.transferredAt ?? null}
+            />
+          )}
+          {selectedUser && (
+            <ConversationTabs
+              conversations={selectedUser.conversations}
+              selectedId={selectedConversationId}
+              onSelect={setSelectedConversationId}
+              collapsed={tabsCollapsed}
+              onToggleCollapse={() => setTabsCollapsed(!tabsCollapsed)}
+            />
+          )}
+          <ChatThread conversation={selectedConversation} />
+        </Box>
+
+        <UserInfoPanel user={selectedUser} conversation={selectedConversation} />
+      </Box>
+    );
+  }
 
   return (
     <Box
       sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "1fr",
-          md: `${ilhaTokens.layout.conversationsListWidth}px minmax(0, 1fr) ${ilhaTokens.layout.userInfoPanelWidth}px`,
-        },
         height: `calc(100dvh - 3rem - ${ilhaTokens.layout.tabBarHeight}px)`,
         minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
         bgcolor: ilhaTokens.color.bgSurface,
       }}
     >
-      <ConversationsList
-        users={filteredUsers}
-        allUsersCount={users.length}
-        search={search}
-        onSearchChange={setSearch}
-        selectedUserId={selectedUserId}
-        onSelect={setSelectedUserId}
-      />
-
-      <Box sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-        {selectedUser && (
-          <Box
-            sx={{
-              px: `${ilhaTokens.space["2xl"]}px`,
-              py: `${ilhaTokens.space.md}px`,
-              borderBottom: `1px solid ${ilhaTokens.color.border}`,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              bgcolor: ilhaTokens.color.bgSurface,
-            }}
-          >
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: ilhaTokens.font.h1.size,
-                  fontWeight: ilhaTokens.font.h1.weight,
-                  color: ilhaTokens.color.textPrimary,
-                  lineHeight: 1.3,
-                }}
-              >
-                {selectedUser.nome}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: ilhaTokens.font.caption.size,
-                  color: ilhaTokens.color.textTertiary,
-                }}
-              >
-                {selectedUser.maskedPhone || "Telefone indisponível"}
-              </Typography>
-            </Box>
-            {selectedConversation?.transferredToAssistant && (
-              <AssistantTransferBadge
-                assistantName={selectedConversation.assistantName}
-                transferredAt={selectedConversation.transferredAt}
-              />
-            )}
-          </Box>
-        )}
-
-        {selectedUser && (
+      {mobileShowingThread && selectedUser ? (
+        <>
+          <ConversationHeader
+            user={selectedUser}
+            transferred={Boolean(selectedConversation?.transferredToAssistant)}
+            assistantName={selectedConversation?.assistantName ?? null}
+            transferredAt={selectedConversation?.transferredAt ?? null}
+            onBack={() => setSelectedUserId(null)}
+          />
           <ConversationTabs
             conversations={selectedUser.conversations}
             selectedId={selectedConversationId}
@@ -126,12 +130,93 @@ function ConversasShell({ users }: { users: IlhaUser[] }) {
             collapsed={tabsCollapsed}
             onToggleCollapse={() => setTabsCollapsed(!tabsCollapsed)}
           />
+          <ChatThread conversation={selectedConversation} />
+        </>
+      ) : (
+        <ConversationsList
+          users={filteredUsers}
+          allUsersCount={users.length}
+          search={search}
+          onSearchChange={setSearch}
+          selectedUserId={selectedUserId}
+          onSelect={setSelectedUserId}
+        />
+      )}
+    </Box>
+  );
+}
+
+interface ConversationHeaderProps {
+  user: IlhaUser;
+  transferred: boolean;
+  assistantName: string | null;
+  transferredAt: Date | null;
+  onBack?: () => void;
+}
+
+function ConversationHeader({
+  user,
+  transferred,
+  assistantName,
+  transferredAt,
+  onBack,
+}: ConversationHeaderProps) {
+  return (
+    <Box
+      sx={{
+        px: { xs: `${ilhaTokens.space.lg}px`, md: `${ilhaTokens.space["2xl"]}px` },
+        py: `${ilhaTokens.space.md}px`,
+        borderBottom: `1px solid ${ilhaTokens.color.border}`,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: `${ilhaTokens.space.sm}px`,
+        bgcolor: ilhaTokens.color.bgSurface,
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", gap: `${ilhaTokens.space.sm}px`, minWidth: 0 }}>
+        {onBack && (
+          <IconButton
+            aria-label="voltar"
+            size="small"
+            onClick={onBack}
+            sx={{
+              color: ilhaTokens.color.textSecondary,
+              mr: "-4px",
+            }}
+          >
+            <ArrowBackIcon fontSize="small" />
+          </IconButton>
         )}
-
-        <ChatThread conversation={selectedConversation} />
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            noWrap
+            sx={{
+              fontSize: ilhaTokens.font.h1.size,
+              fontWeight: ilhaTokens.font.h1.weight,
+              color: ilhaTokens.color.textPrimary,
+              lineHeight: 1.3,
+            }}
+          >
+            {user.nome}
+          </Typography>
+          <Typography
+            noWrap
+            sx={{
+              fontSize: ilhaTokens.font.caption.size,
+              color: ilhaTokens.color.textTertiary,
+            }}
+          >
+            {user.maskedPhone || "Telefone indisponível"}
+          </Typography>
+        </Box>
       </Box>
-
-      <UserInfoPanel user={selectedUser} conversation={selectedConversation} />
+      {transferred && (
+        <AssistantTransferBadge
+          assistantName={assistantName}
+          transferredAt={transferredAt}
+        />
+      )}
     </Box>
   );
 }

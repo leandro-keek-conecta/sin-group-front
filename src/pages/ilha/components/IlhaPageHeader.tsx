@@ -12,18 +12,18 @@ interface Props {
 export function IlhaPageHeader({ title, subtitle, actions, dense = false }: Props) {
   return (
     <Stack
-      direction="row"
+      direction={{ xs: "column", sm: "row" }}
       justifyContent="space-between"
-      alignItems={dense ? "center" : "flex-end"}
+      alignItems={{ xs: "stretch", sm: dense ? "center" : "flex-end" }}
       sx={{
         pb: dense ? `${ilhaTokens.space.md}px` : `${ilhaTokens.space.lg}px`,
         pt: `${ilhaTokens.space.xs}px`,
         mb: `${ilhaTokens.space.lg}px`,
         borderBottom: `1px solid ${ilhaTokens.color.border}`,
-        gap: 2,
+        gap: { xs: `${ilhaTokens.space.md}px`, sm: 2 },
       }}
     >
-      <Box>
+      <Box sx={{ minWidth: 0 }}>
         <Typography
           sx={{
             fontSize: ilhaTokens.font.display.size,
@@ -47,7 +47,19 @@ export function IlhaPageHeader({ title, subtitle, actions, dense = false }: Prop
           </Typography>
         )}
       </Box>
-      {actions && <Box sx={{ flexShrink: 0 }}>{actions}</Box>}
+      {actions && (
+        <Box
+          sx={{
+            flexShrink: 0,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: `${ilhaTokens.space.sm}px`,
+            justifyContent: { xs: "flex-start", sm: "flex-end" },
+          }}
+        >
+          {actions}
+        </Box>
+      )}
     </Stack>
   );
 }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { IlhaPageHeader } from "../components/IlhaPageHeader";
 import { ilhaTokens } from "../theme/tokens";
 import { useCalendlyEvents } from "./hooks/useCalendly";
@@ -17,6 +18,8 @@ const TABS: { id: FilterTab; label: string }[] = [
 ];
 
 export default function IlhaEventos() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [tab, setTab] = useState<FilterTab>("upcoming");
   const [selectedUri, setSelectedUri] = useState<string | null>(null);
 
@@ -54,69 +57,77 @@ export default function IlhaEventos() {
   return (
     <Box
       sx={{
-        px: { xs: `${ilhaTokens.space.lg}px`, md: `${ilhaTokens.space["2xl"]}px` },
-        pb: `${ilhaTokens.space["3xl"]}px`,
+        px: { xs: `${ilhaTokens.space.md}px`, md: `${ilhaTokens.space["2xl"]}px` },
+        pb: { xs: `${ilhaTokens.space.lg}px`, md: `${ilhaTokens.space["3xl"]}px` },
       }}
     >
-      <IlhaPageHeader
-        title="Eventos"
-        subtitle={subtitle}
-        actions={
-          <Stack direction="row" spacing={1} alignItems="center">
-            <ExportRangeButton />
-            <SchedulingLinkCreator />
-          </Stack>
-        }
-      />
+      {!(isMobile && selectedUri) && (
+        <>
+          <IlhaPageHeader
+            title="Eventos"
+            subtitle={subtitle}
+            actions={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <ExportRangeButton />
+                <SchedulingLinkCreator />
+              </Stack>
+            }
+          />
 
-      <Stack
-        direction="row"
-        spacing={0.5}
-        sx={{
-          mb: `${ilhaTokens.space.lg}px`,
-          p: "4px",
-          bgcolor: ilhaTokens.color.bgSubtle,
-          borderRadius: `${ilhaTokens.radius.md}px`,
-          width: "fit-content",
-        }}
-      >
-        {TABS.map((t) => {
-          const active = t.id === tab;
-          return (
-            <Box
-              key={t.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => handleSelectTab(t.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleSelectTab(t.id);
-                }
-              }}
-              sx={{
-                px: `${ilhaTokens.space.md}px`,
-                py: "6px",
-                borderRadius: `${ilhaTokens.radius.sm}px`,
-                fontSize: ilhaTokens.font.body.size,
-                fontWeight: active
-                  ? ilhaTokens.font.bodyStrong.weight
-                  : ilhaTokens.font.body.weight,
-                color: active ? ilhaTokens.color.textPrimary : ilhaTokens.color.textSecondary,
-                bgcolor: active ? ilhaTokens.color.bgSurface : "transparent",
-                boxShadow: active ? ilhaTokens.shadow.sm : "none",
-                cursor: "pointer",
-                transition: `all ${ilhaTokens.transition.base}`,
-                "&:hover": {
-                  color: ilhaTokens.color.textPrimary,
-                },
-              }}
-            >
-              {t.label}
-            </Box>
-          );
-        })}
-      </Stack>
+          <Stack
+            direction="row"
+            spacing={0.5}
+            sx={{
+              mb: `${ilhaTokens.space.lg}px`,
+              p: "4px",
+              bgcolor: ilhaTokens.color.bgSubtle,
+              borderRadius: `${ilhaTokens.radius.md}px`,
+              width: { xs: "100%", sm: "fit-content" },
+              overflowX: "auto",
+            }}
+          >
+            {TABS.map((t) => {
+              const active = t.id === tab;
+              return (
+                <Box
+                  key={t.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleSelectTab(t.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleSelectTab(t.id);
+                    }
+                  }}
+                  sx={{
+                    flex: { xs: 1, sm: "0 0 auto" },
+                    textAlign: "center",
+                    px: `${ilhaTokens.space.md}px`,
+                    py: { xs: "8px", sm: "6px" },
+                    borderRadius: `${ilhaTokens.radius.sm}px`,
+                    fontSize: ilhaTokens.font.body.size,
+                    fontWeight: active
+                      ? ilhaTokens.font.bodyStrong.weight
+                      : ilhaTokens.font.body.weight,
+                    color: active ? ilhaTokens.color.textPrimary : ilhaTokens.color.textSecondary,
+                    bgcolor: active ? ilhaTokens.color.bgSurface : "transparent",
+                    boxShadow: active ? ilhaTokens.shadow.sm : "none",
+                    cursor: "pointer",
+                    transition: `all ${ilhaTokens.transition.base}`,
+                    whiteSpace: "nowrap",
+                    "&:hover": {
+                      color: ilhaTokens.color.textPrimary,
+                    },
+                  }}
+                >
+                  {t.label}
+                </Box>
+              );
+            })}
+          </Stack>
+        </>
+      )}
 
       <Box
         sx={{
@@ -126,19 +137,26 @@ export default function IlhaEventos() {
             md: `${ilhaTokens.layout.conversationsListWidth}px minmax(0, 1fr)`,
           },
           gap: 0,
-          border: `1px solid ${ilhaTokens.color.border}`,
+          border: { xs: `1px solid ${ilhaTokens.color.border}`, md: `1px solid ${ilhaTokens.color.border}` },
           borderRadius: `${ilhaTokens.radius.lg}px`,
           overflow: "hidden",
           bgcolor: ilhaTokens.color.bgCanvas,
-          minHeight: `calc(100dvh - 3rem - ${ilhaTokens.layout.tabBarHeight}px - 220px)`,
-          height: `calc(100dvh - 3rem - ${ilhaTokens.layout.tabBarHeight}px - 220px)`,
+          mt: "1rem",
+          minHeight: {
+            xs: "calc(100dvh - 170px)",
+            md: `calc(100dvh - 3rem - ${ilhaTokens.layout.tabBarHeight}px - 220px)`,
+          },
+          height: {
+            xs: "calc(100dvh - 170px)",
+            md: `calc(100dvh - 3rem - ${ilhaTokens.layout.tabBarHeight}px - 220px)`,
+          },
         }}
       >
         <Box
           sx={{
+            display: { xs: selectedUri ? "none" : "flex", md: "flex" },
             borderRight: { md: `1px solid ${ilhaTokens.color.border}` },
             bgcolor: ilhaTokens.color.bgSubtle,
-            display: "flex",
             flexDirection: "column",
             minHeight: 0,
           }}
@@ -217,8 +235,19 @@ export default function IlhaEventos() {
           </Box>
         </Box>
 
-        <Box sx={{ bgcolor: ilhaTokens.color.bgSurface, minHeight: 0 }}>
-          <EventDetailPanel selectedUri={selectedUri} fallback={selectedEvent} />
+        <Box
+          sx={{
+            display: { xs: selectedUri ? "block" : "none", md: "block" },
+            bgcolor: ilhaTokens.color.bgSurface,
+            minHeight: 0,
+            overflow: "hidden",
+          }}
+        >
+          <EventDetailPanel
+            selectedUri={selectedUri}
+            fallback={selectedEvent}
+            onBack={isMobile ? () => setSelectedUri(null) : undefined}
+          />
         </Box>
       </Box>
     </Box>
